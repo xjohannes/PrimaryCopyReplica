@@ -1,17 +1,28 @@
-export ReplicaType
 export FrameworkType
+export NodeElementType
+export ReplicaType
 
 const FrameworkType <- typeObject frameworkType 
 	op replicateMe[X : ReplicaType, N : Integer]
-	op notify[primary : ReplicaType]
+	op notify
+	op getPrimary -> [primary : replicaType]
 end frameworkType
 
+const NodeElementType <- typeObject nodeElementType
+	op getReplica -> [replica : replicaType]
+	op setReplica[replica : replicaType]
+	op getNode -> [nnl : Node]
+end nodeElementType
+
 const ReplicaType <- typeObject replicaType
-	op update
-	op getData -> [state : Any]
-	op setData[state : Any]
+	op update[primary:replicaType]
+	op getData -> [data : String]
+	op setData[data : Any]
 	op cloneMe -> [clone : replicaType]
 	op isPrimary -> [res : boolean]
 	op setToPrimary
-	op print[msg:String]
+	op print[msg : String]
+	op getId -> [id : Integer]
+	op insert[data : String]
+	op ping
 end replicaType

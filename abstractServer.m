@@ -1,7 +1,7 @@
 export abstractServer
 
 const abstractServer <- object abstractServer
-			attached var primary : boolean
+			attached var primary : boolean <- false
 			attached var data : Any
 
 			export operation update
@@ -37,12 +37,5 @@ const abstractServer <- object abstractServer
 				end if
 			end print
 
-			process
-				self.runTest
-			end process
-
-			initially
-				data <- data
-			end initially
 		end abstractServer
 
