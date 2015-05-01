@@ -14,30 +14,49 @@ const framework <- object framework
 
 		export operation getReplica -> [rep : replicaType]
 			rep <- replica
+			unavailable
+				(locate self)$stdout.putstring["NodeElem: getReplica. Unavailable " || "\n"]
+			end unavailable
 		end getReplica
 
 		export operation setReplica [rep : replicaType]
 			replica <- rep
 			(locate self)$stdout.putstring["Debug: setReplica. " || "\n"]
+			unavailable
+				(locate self)$stdout.putstring["NodeElem: setReplica. Unavailable " || "\n"]
+			end unavailable
 		end setReplica
 
 		export operation getNode -> [n : Node]
 			n <- nodeElem
+			unavailable
+				(locate self)$stdout.putstring["NodeElem: getNode. Unavailable " || "\n"]
+			end unavailable
 		end getNode
 	end nodeElement
 
 	const nodeDownHandler <- object nodeDownHandler
 		export operation nodeUp[n : node, t : Time]
-			(locate self)$stdout.putstring["Node up handler:"  || n$LNN.asString||"\n"]
+			(locate self)$stdout.putstring["Node up handler:" ||"\n"]
+			%framework.nodeDown[n]
+			unavailable
+				(locate self)$stdout.putstring["nodeHandler: nodeUp . Unavailable " || "\n"]
+			end unavailable
 		end nodeUp
 
 		export operation nodeDown[n : node, t : Time]
-			(locate self)$stdout.putstring["Node up handler:"  || n$LNN.asString||"\n"]
+			(locate self)$stdout.putstring["Node up handler:"  ||"\n"]
+			%framework.nodeDown[n]
+			unavailable
+			(locate self)$stdout.putstring["NodeHandler: nodeDown. Unavailable " || "\n"]
+		end unavailable
 		end nodeDown
 	end nodeDownHandler
 	%%%%%%%%%%%%%%%%% end inner class %%%%%%%
 
 	export operation replicateMe[X : replicaType, N : Integer]
+		self.instansiateNodeElements
+		home.setNodeEventHandler[nodeDownHandler]
 		replicas <- Array.of[replicaType].create[N]
 		if home.getActiveNodes.upperbound > (N - 1) then 
 			X.setToPrimary
@@ -65,6 +84,10 @@ const framework <- object framework
 		if replicas.upperbound > 0 then 
 			replicas[0].setData[data]
 		end if
+
+		unavailable
+			(locate self)$stdout.putstring["\nFramework. Insert. Unavailable"|| "\n" ]
+		end unavailable
 	end insert
 
 	export operation notify
@@ -85,21 +108,36 @@ const framework <- object framework
 
 	export operation getPrimary -> [primary : replicaType]
 		(locate self)$stdout.putstring["Thread: Get primary \n"]
-		home$stdout.putstring["Framework: Get primary \n"]
 		replicas[0].ping
-		(locate self)$stdout.putstring["Debug: getPrimary 1." || "\n"]
 		primary <- replicas[0]
-		(locate self)$stdout.putstring["Debug: getPrimary 2." || "\n"]
-		
 		
 		unavailable
 			(locate self)$stdout.putstring["Debug: getPrimary. Unavailable." || "\n"]
-			self.nodeDown[0]
+			self.nodeDown
 			var throwAway : replicaType <- self.getPrimary
 		end unavailable
 	end getPrimary
 
-	operation nodeDown[nodeNr : Integer]
+	operation nodeDown
+		var i : Integer <- 0
+		loop
+				exit when i >= nodeElements.upperbound
+				begin
+					nodeElements[i].getReplica.ping
+				end
+				i <- i + 1
+		end loop
+
+		unavailable
+			(locate self)$stdout.putstring["Framework: NodeDown: Unavailable"  ||"\n"]
+			nodeElements[i] <- nodeElements[nodeElements.upperbound]
+			var throwAway : nodeElementType <- nodeElements.removeUpper
+			
+			self.maintainReplicas
+		end unavailable
+	end nodeDown
+
+	operation nodeDown[nodeNr : Integer, extra : Integer]
 			(locate self)$stdout.putstring["Debug: Node Down" || "\n"]
 			var tmpNr : Integer <- nodeNr
 			if nodeNr == 0 then
@@ -118,6 +156,50 @@ const framework <- object framework
 			framework.cleanUpNodeElements
 	end nodeDown
 
+	export operation nodeDown[n : node]
+		var i : Integer <- 0
+		loop
+				exit when i >= nodeElements.upperbound
+				begin
+					if n == nodeElements[i] then 
+						nodeElements[i] <- nodeElements[nodeElements.upperbound]
+						var throwAway : nodeElementType <- nodeElements.removeUpper
+			
+			self.maintainReplicas
+					end if
+				end
+				i <- i + 1
+		end loop
+	end nodeDown
+
+	operation maintainReplicas
+		%var newReplica : replicaType <- replicas[]
+		var i : Integer <- 0
+		loop
+			exit when i >= replicas.upperbound
+				begin
+					replicas[i].ping
+				end
+				i <- i + 1
+		end loop
+		
+		unavailable
+			(locate self)$stdout.putstring["\nFramework. maintainReplicas. Unavailable. "|| "\n" ]
+			if i == 0 then
+				(locate self)$stdout.putstring["Debug: Primary Node is down. Cloning new " || "\n"]
+				replicas[0] <- replicas[1]
+				replicas[0].setToPrimary
+				i <- 1
+			else
+				(locate self)$stdout.putstring["Debug: Replica Node is down. Cloning new " || "\n"] 
+			end if
+			replicas[i] <- replicas[0].cloneMe
+			var emptyNode : Node <- self.findAvailableNode
+			move replicas[i] to emptyNode
+			(locate self)$stdout.putstring["After moving new clone" || "\n"] 
+		end unavailable
+	end maintainReplicas
+
 	operation findAvailableNode -> [availableNode : Node]
 		availableNode <- nil
 		for i : Integer <- 0 while i <= nodeElements.upperbound by i <- i + 1
@@ -126,6 +208,9 @@ const framework <- object framework
 				return
 			end if
 		end for
+		unavailable
+			(locate self)$stdout.putstring["\nFramework. FindAvailable nodes. Unavailable"|| "\n" ]
+		end unavailable
 	end findAvailableNode
 
 	operation cleanUpNodeElements
@@ -143,7 +228,7 @@ const framework <- object framework
 
 		unavailable
 			tmpNodeElem.setReplica[nil]
-			(locate self)$stdout.putstring["Framework: cleaning: Unavailable"  ||"\n"]
+			(locate self)$stdout.putstring["Framework: cleaning. Unavailable:"  ||"\n"]
 		end unavailable
 
 		failure
@@ -157,13 +242,17 @@ const framework <- object framework
 			nodeElements[i - 1] <- nodeElement.create[n]
 			%home$stdout.putstring["instansiateNodeElements:  "  || nodeElements[i - 1].getNode$LNN.asString||"\n"]
 		end for
+		unavailable
+			(locate self)$stdout.putstring["Framework: instansiateNodeElements. Unavailable " || "\n"]
+		end unavailable
 	end instansiateNodeElements
 
 	
 
 	initially
-		self.instansiateNodeElements
-		home.setNodeEventHandler[nodeDownHandler]
+		unavailable
+			(locate self)$stdout.putstring["Framework: initially. Unavailable " || "\n"]
+		end unavailable
 	end initially
 end framework
 
