@@ -5,10 +5,10 @@ const framework <- object framework
 	const home <- (locate self)
 	var activeNodes : NodeList <- home$activeNodes
 	var replicas : Array.of[replicaType] 
-	var nodeElements : Array.of[nodeElementType] <- Array.of[nodeElementType].create[(home.getActiveNodes.upperbound + 1)]
+	var nodeElements : Array.of[nodeElementType] <- Array.of[nodeElementType].create[0]
 	
 	%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%
-	const nodeElement <- class nodeElement [nodeElem : node]
+	const nodeElementConstructor <- class nodeElement [nodeElem : node]
 		var replica : replicaType <- nil
 		var NNL : Integer
 
@@ -57,6 +57,7 @@ const framework <- object framework
 
 	export operation replicateMe[X : replicaType, N : Integer]
 		replicas <- Array.of[replicaType].create[N]
+		
 		if home.getActiveNodes.upperbound > (N - 1) then 
 			X.setToPrimary
 			replicas[0] <- X
@@ -78,6 +79,20 @@ const framework <- object framework
 			(locate self)$stdout.putstring["Debug: replacateMe. Unavailable " || "\n"]
 		end unavailable
 	end replicateMe
+
+	operation maintainNodes
+		var j : Integer <- 0
+		for i : Integer <- 0 while i <= replicas.upperbound by i <- i + 1
+			replicas[i].ping
+			(locate self)$stdout.putstring["Debug: maintainNodes. Node " || i.asString|| " is up and running.\n"]
+			j <- j + 1
+		end for
+
+		unavailable
+			(locate self)$stdout.putstring["Debug: maintainNodes. Node " || j.asString|| " is down.\n"]
+			self.nodeDown[j, 0]
+		end unavailable
+	end maintainNodes
 
 	export operation testMethod
 		(locate self)$stdout.putstring["Debug: TestMethod " || "\n"]
@@ -121,7 +136,7 @@ const framework <- object framework
 	end getPrimary
 
 	export operation nodeDown
-		(locate self)$stdout.putstring["Debug: NodeDown: NodesWithReplicas: "  || nodeElements.upperbound.asString||"\n"]
+		(locate self)$stdout.putstring["Debug: NodeDown: "  || nodeElements.upperbound.asString||"\n"]
 		var i : Integer <- 0
 		loop
 				(locate self)$stdout.putstring["Framework: NodeDown: beginning Loooooop"  ||"\n"]
@@ -155,32 +170,13 @@ const framework <- object framework
 		end failure
 	end nodeDown
 
-	operation nodeDownExttra
-		var i : Integer <- 0
-		loop
-				exit when i >= nodeElements.upperbound
-				begin
-					nodeElements[i].getReplica.ping
-				end
-				i <- i + 1
-		end loop
-
-		unavailable
-			(locate self)$stdout.putstring["Framework: NodeDown: Unavailable"  ||"\n"]
-			nodeElements[i] <- nodeElements[nodeElements.upperbound]
-			var throwAway : nodeElementType <- nodeElements.removeUpper
-			
-			self.maintainReplicas
-		end unavailable
-	end nodeDownExttra
-
 	operation nodeDown[nodeNr : Integer, extra : Integer]
 			(locate self)$stdout.putstring["Debug: Node Down" || "\n"]
 			var tmpNr : Integer <- nodeNr
 			if nodeNr == 0 then
 				(locate self)$stdout.putstring["Debug: Primary Node is down. Cloning new " || "\n"]
-				replicas[0] <- replicas[1]
-				%nodeElements.removeLower
+				replicas[0] <- replicas[replicas.upperbound]
+				var throw : nodeElementType <- nodeElements.removeUpper
 				replicas[0].setToPrimary
 				tmpNr <- 1
 			else
@@ -189,7 +185,11 @@ const framework <- object framework
 
 			replicas[tmpNr] <- replicas[0].cloneMe
 			var emptyNode : Node <- self.findAvailableNode
-			move replicas[tmpNr] to emptyNode
+			fix replicas[tmpNr] at emptyNode
+
+			unavailable
+				(locate self)$stdout.putstring["Debug: Node down. Unavailable" || "\n"] 
+			end unavailable
 	end nodeDown
 
 	export operation nodeDown[n : node]
@@ -260,13 +260,24 @@ const framework <- object framework
 	operation instansiateNodeElements
 		for i : Integer <- 1 while i <= home$activeNodes.upperbound by i <- i + 1
 			var n : node <- home$activeNodes[i]$theNode
-			nodeElements[i - 1] <- nodeElement.create[n]
+			nodeElements.addUpper[nodeElementConstructor.create[n]]
 			%home$stdout.putstring["instansiateNodeElements:  "  || nodeElements[i - 1].getNode$LNN.asString||"\n"]
 		end for
 		unavailable
 			(locate self)$stdout.putstring["Framework: instansiateNodeElements. Unavailable " || "\n"]
 		end unavailable
 	end instansiateNodeElements
+
+	process
+		var i : boolean <- true
+		loop
+			exit when i >= false 
+			begin
+				home.delay[Time.create[1, 0]]
+				self.maintainNodes
+			end
+		end loop
+	end process
 
 	initially
 		self.instansiateNodeElements
