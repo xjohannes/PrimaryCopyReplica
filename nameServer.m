@@ -64,6 +64,7 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 
 				failure
 					(locate self)$stdout.putstring["Set Data: failure "  ||" \n"]
+					self.print["Print after Failure"]
 				end failure
 			end setData
 	

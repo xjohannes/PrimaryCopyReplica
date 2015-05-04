@@ -5,9 +5,7 @@ const testSuite <- object testSuite
 	process
 		%(locate self).delay[Time.create[2 , 0]]
 		var testRep : replicaType <- nameServerConstructor.create[0, frameWork]
-		(locate self)$stdout.putstring["TestSuit Debugg " || "\n"]
 		framework.replicateMe[testRep, 2]
-
 		(locate self).delay[Time.create[1,0]]
 		framework.insert["John Lennon"]
 		(locate self).delay[Time.create[1,0]]

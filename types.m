@@ -6,7 +6,9 @@ const FrameworkType <- typeObject frameworkType
 	op replicateMe[X : ReplicaType, N : Integer]
 	op notify
 	op getPrimary -> [primary : replicaType]
+	op nodeDown
 	op nodeDown[n : node]
+	op testMethod
 end frameworkType
 
 const NodeElementType <- typeObject nodeElementType
