@@ -21,7 +21,7 @@ const ReplicaType <- typeObject replicaType
 	op setData[data : Any]
 	op cloneMe -> [clone : replicaType]
 	op isPrimary -> [res : boolean]
-	op setToPrimary
+	op setToPrimary[msg : String]
 	op print[msg : String]
 	op getId -> [id : Integer]
 	op insert[data : String]

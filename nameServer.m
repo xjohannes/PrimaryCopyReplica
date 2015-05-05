@@ -68,9 +68,9 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 				%end failure
 			end setData
 	
-			export operation setToPrimary
+			export operation setToPrimary[msg : String]
 				primary <- true
-				(locate self)$stdout.putstring["\nSet to primary."|| "\n" ]
+				(locate self)$stdout.putstring["\n" || msg || ". Set to primary."|| "\n" ]
 				unavailable
 					(locate self)$stdout.putstring["nameServer: setToPrimary. Unavailable " || "\n"]
 				end unavailable
