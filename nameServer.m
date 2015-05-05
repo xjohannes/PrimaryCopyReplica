@@ -44,15 +44,11 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			end getData
 	
 			export operation setData[newData : Any]
-				(locate self)$stdout.putstring["\n setData -1. "|| "\n" ]
 				if self.isPrimary then 
-					(locate self)$stdout.putstring["\nPrimary: setData 0. "|| "\n" ]
 					data.addupper[view newData as String]
-					(locate self)$stdout.putstring["\nPrimary: setData 1. "|| "\n" ]
 					self.print[" added " || data[data.upperbound]]
-					(locate self)$stdout.putstring["Primary: setData 2. "|| "\n" ]
 					framework.notify
-					(locate self)$stdout.putstring["Primary: setData 3."|| "\n" ]
+					(locate self)$stdout.putstring["Primary: Replicas has been notified."|| "\n" ]
 				else
 					(locate self)$stdout.putstring["\nReplica: Can not set data. " || "Calling primary."|| "\n" ]
 					var currentPrimary : replicaType <- framework.getPrimary

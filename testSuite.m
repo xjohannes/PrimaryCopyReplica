@@ -16,6 +16,7 @@ const testSuite <- object testSuite
 		framework.insert["George Harrison"]
 		(locate self).delay[Time.create[1,0]]
 		framework.insert["Ringo Starr"]
+		
 		unavailable
 			(locate self)$stdout.putstring["TestSuit Prosess. Unavailable " || "\n"]
 		end unavailable
