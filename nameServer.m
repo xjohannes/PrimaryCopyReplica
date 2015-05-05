@@ -44,7 +44,7 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			end getData
 	
 			export operation setData[newData : Any]
-				(locate self)$stdout.putstring["\nPrimary: setData -1. "|| "\n" ]
+				(locate self)$stdout.putstring["\n setData -1. "|| "\n" ]
 				if self.isPrimary then 
 					(locate self)$stdout.putstring["\nPrimary: setData 0. "|| "\n" ]
 					data.addupper[view newData as String]
@@ -62,15 +62,15 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 					(locate self)$stdout.putstring["\n SetData. unavailable."|| "\n" ]
 				end unavailable
 
-				failure
-					(locate self)$stdout.putstring["Set Data: failure "  ||" \n"]
-					self.print["Print after Failure"]
-				end failure
+				%failure
+					%(locate self)$stdout.putstring["Set Data: failure "  ||" \n"]
+					%self.print["Print after Failure"]
+				%end failure
 			end setData
 	
 			export operation setToPrimary
 				primary <- true
-				(locate self)$stdout.putstring["\nI am now the new primary."|| "\n" ]
+				(locate self)$stdout.putstring["\nSet to primary."|| "\n" ]
 				unavailable
 					(locate self)$stdout.putstring["nameServer: setToPrimary. Unavailable " || "\n"]
 				end unavailable
@@ -125,9 +125,16 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 
 
 			operation runTest
-				(locate self).delay[Time.create[10 , 0]]
 				if !self.isPrimary then
-					self.setData["The Beatles:"]
+					self.setData["Led Zeppelin"]
+					(locate self).delay[Time.create[2 , 0]]
+					self.setData["Jimmy Page"]
+					(locate self).delay[Time.create[2 , 0]]
+					self.setData["Robert Plant"]
+					(locate self).delay[Time.create[2 , 0]]
+					self.setData["John Paul Jones"]
+					(locate self).delay[Time.create[2 , 0]]
+					self.setData["John Bonham"]
 				end if
 				unavailable
 					(locate self)$stdout.putstring["nameServer: runTest. Unavailable " || "\n"]
@@ -135,6 +142,7 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			end runTest
 
 			process
+				(locate self).delay[Time.create[2 , 0]]
 				self.runTest
 				unavailable
 					(locate self)$stdout.putstring["nameServer: nameServer Prosess. Unavailable " || "\n"]
