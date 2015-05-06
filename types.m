@@ -20,7 +20,7 @@ end nodeElementType
 const ReplicaType <- typeObject replicaType
 	op update
 	op update[newData : Any]
-	op getUdn -> [updateNr : Integer]
+	op getUpn -> [updateNr : Integer]
 	op getData -> [data : String]
 	op setData[data : Any]
 	op cloneMe -> [clone : replicaType]

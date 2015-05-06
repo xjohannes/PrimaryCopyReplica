@@ -20,8 +20,7 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 			end cloneMe
 
 			export operation insert[newData : String]
-				data.addUpper[newData]
-				self.print[" inserting new data in clone:  " || newData ]
+				self.print["Replica inserting"]
 				unavailable
 					(locate self)$stdout.putstring["Replica: insert. Unavailable " || "\n"]
 				end unavailable
@@ -35,7 +34,7 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 
 			export operation update[newData : Any]
 				if self.isPrimary then
-					self.print[" updated filelist with: " || data[data.upperbound]]
+					self.print["Primary Update: "]
 				end if
 
 				unavailable
@@ -43,9 +42,9 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 				end unavailable
 			end update
 
-			export operation getUdn -> [updateNr : Integer]
+			export operation getUpn -> [updateNr : Integer]
 				updateNr <- updateNumber
-			end getUdn
+			end getUpn
 
 			export operation getData -> [res : String]
 				(locate self)$stdout.putstring["replica: getData. Not Implemented. " || "\n"]
