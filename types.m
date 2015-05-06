@@ -1,6 +1,8 @@
 export FrameworkType
 export NodeElementType
 export ReplicaType
+export MonitorType
+export ClonableType
 
 const FrameworkType <- typeObject frameworkType 
 	op replicateMe[X : ReplicaType, N : Integer]
@@ -16,7 +18,9 @@ const NodeElementType <- typeObject nodeElementType
 end nodeElementType
 
 const ReplicaType <- typeObject replicaType
+	op update
 	op update[primary:replicaType]
+	op getUdn -> [updateNr : Integer]
 	op getData -> [data : String]
 	op setData[data : Any]
 	op cloneMe -> [clone : replicaType]
@@ -27,3 +31,13 @@ const ReplicaType <- typeObject replicaType
 	op insert[data : String]
 	op ping
 end replicaType
+
+const ClonableType <- typeObject ClonableType
+	op cloneMe -> [clone : ClonableType]
+	op update[newData : Any]
+	op print[msg : String]
+end ClonableType
+
+const MonitorType <- typeObject monitorType
+	op setData[newData : Any]
+end monitorType

@@ -3,7 +3,7 @@ export testSuite
 const testSuite <- object testSuite
 
 	process
-		%(locate self).delay[Time.create[2 , 0]]
+		%(locate self).delay[Time.create[3 , 0]]
 		var testRep : replicaType <- nameServerConstructor.create[0, frameWork]
 		framework.replicateMe[testRep, 2]
 		(locate self).delay[Time.create[1,0]]

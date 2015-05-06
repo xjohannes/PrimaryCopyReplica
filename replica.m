@@ -1,6 +1,6 @@
-export nameServerConstructor
+export replicaConstructor
 
-const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, fw : frameworkType]
+const replicaConstructor <- class replicaClass[replicaId : Integer, fw : frameworkType]
 			
 			attached var primary : boolean <- false
 			attached var frameWork:FrameworkType <- fw
@@ -12,7 +12,7 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			
 			export operation cloneMe -> [clone : replicaType]
 				self.addClone
-				clone <- nameServerConstructor.create[nrOfClones, frameWork]
+				clone <- replicaClass.create[nrOfClones, frameWork]
 				
 				for i : Integer <- 0 while i <= data.upperbound by i <- i + 1
 					clone.insert[data[i]]
@@ -164,4 +164,4 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			initially
 				data <- Array.of[String].create[0]
 			end initially
-end nameServerConstructor 
+end replicaClass 
