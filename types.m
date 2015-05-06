@@ -19,7 +19,7 @@ end nodeElementType
 
 const ReplicaType <- typeObject replicaType
 	op update
-	op update[primary:replicaType]
+	op update[newData : Any]
 	op getUdn -> [updateNr : Integer]
 	op getData -> [data : String]
 	op setData[data : Any]
@@ -39,5 +39,5 @@ const ClonableType <- typeObject ClonableType
 end ClonableType
 
 const MonitorType <- typeObject monitorType
-	op setData[newData : Any]
+	op update[newData : Any, upn : Integer]
 end monitorType

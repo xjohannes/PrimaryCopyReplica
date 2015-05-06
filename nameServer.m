@@ -1,21 +1,20 @@
 export nameServerConstructor
 
-const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, fw : frameworkType]
+const nameServerConstructor <- class nameServerConstructor[replicaId : Integer]
 			
 			attached var primary : boolean <- false
-			attached var frameWork:FrameworkType <- fw
+			
 			attached var data : Array.of[String] 
 			attached var nrOfClones : Integer <- 0
 			attached var id : Integer <- replicaId
 			attached var udn : Integer <- 0
-			attached var monitorObject : MonitorType
 			
-			export operation cloneMe -> [clone : replicaType]
+			export operation cloneMe -> [clone : ClonableType]
 				self.addClone
-				clone <- nameServerConstructor.create[nrOfClones, frameWork]
+				clone <- nameServerConstructor.create[nrOfClones]
 				
 				for i : Integer <- 0 while i <= data.upperbound by i <- i + 1
-					clone.insert[data[i]]
+					clone.update[data[i]]
 				end for
 
 				unavailable
@@ -30,16 +29,10 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 					(locate self)$stdout.putstring["nameServer: insert. Unavailable " || "\n"]
 				end unavailable
 			end insert
-			export operation update
-				
-				unavailable
-					(locate self)$stdout.putstring["nameServer: update. Unavailable " || "\n"]
-				end unavailable
-			end update
 
-			export operation update[prime:replicaType]
-				data.addUpper[prime.getData]
-				self.print[" updated filelist with: " || data[data.upperbound]]
+			export operation update[newData : Any]
+				data.addUpper[view newData as String]
+
 				unavailable
 					(locate self)$stdout.putstring["nameServer: update. Unavailable " || "\n"]
 				end unavailable
@@ -57,25 +50,7 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			end getData
 	
 			export operation setData[newData : Any]
-				if self.isPrimary then 
-
-					data.addupper[view newData as String]
-					self.print[" added " || data[data.upperbound]]
-					framework.notify
-					(locate self)$stdout.putstring["Primary: Replicas has been notified."|| "\n" ]
-				else
-					(locate self)$stdout.putstring["\nReplica: Can not set data. " || "Calling primary."|| "\n" ]
-					var currentPrimary : replicaType <- framework.getPrimary
-					currentPrimary.setData[newData]
-				end if
-				unavailable
-					(locate self)$stdout.putstring["\n SetData. unavailable."|| "\n" ]
-				end unavailable
-
-				%failure
-					%(locate self)$stdout.putstring["Set Data: failure "  ||" \n"]
-					%self.print["Print after Failure"]
-				%end failure
+				
 			end setData
 	
 			export operation setToPrimary[msg : String]
@@ -152,10 +127,9 @@ const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, 
 			end runTest
 
 			process
-				monitorObject <- monitorConstructor.create[]
 				(locate self).delay[Time.create[2 , 0]]
-				const home <- (locate self)
-				self.runTest
+				%const home <- (locate self)
+				%self.runTest
 				unavailable
 					(locate self)$stdout.putstring["nameServer: nameServer Prosess. Unavailable " || "\n"]
 				end unavailable

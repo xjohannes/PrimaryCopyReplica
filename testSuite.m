@@ -1,10 +1,10 @@
 export testSuite
 
 const testSuite <- object testSuite
-
+	const home <- (locate self)
 	process
 		%(locate self).delay[Time.create[3 , 0]]
-		var testRep : replicaType <- nameServerConstructor.create[0, frameWork]
+		var testRep : ClonableType <- nameServerConstructor.create[0]
 		framework.replicateMe[testRep, 2]
 		(locate self).delay[Time.create[1,0]]
 		framework.insert["The Beatles"]

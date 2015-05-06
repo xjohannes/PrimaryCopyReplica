@@ -60,20 +60,22 @@ const framework <- object framework
 		(locate self)$stdout.putstring["Debug: TestMethod " || "\n"]
 	end testMethod
 
-	export operation replicateMe[X : replicaType, N : Integer]
+	export operation replicateMe[X : ClonableType, N : Integer]
 		replicas <- Array.of[replicaType].create[0]
 		
 		if home.getActiveNodes.upperbound > (N - 1) then 
-			X.setToPrimary["First replica"]
-			replicas.addUpper[X]
+			var tmp : replicaType <- replicaConstructor.create[0, self, X]
+			replicas.addUpper[tmp]
+			replicas[0].setToPrimary["First replica"]
+			nodeElements[0].setReplica[replicas[0]]
 			for i : Integer <- 1 while i < N by i <- i + 1
 			(locate self)$stdout.putstring["Debug: replicateMe i: "|| i.asString || "\n"]
-				replicas.addUpper[X.cloneMe[]]
+				tmp <- replicaConstructor.create[0, self, X.cloneMe]
+				replicas.addUpper[tmp]
 				nodeElements[i].setReplica[replicas[i]]
 				fix replicas[i] at nodeElements[i].getNode
 				replicas[i].print["My new home " || nodeElements[i].getNode$LNN.asString]
 			end for
-			nodeElements[0].setReplica[X]
 			fix X at nodeElements[0].getNode
 			X.print["My new home. My LNN is: " || nodeElements[0].getNode$LNN.asString]
 		else

@@ -1,25 +1,21 @@
 export replicaConstructor
 
-const replicaConstructor <- class replicaClass[replicaId : Integer, fw : frameworkType]
-			
+const replicaConstructor <- class replicaClass[replicaId : Integer, fw : frameworkType, obj : ClonableType]
+			attached var myObject : ClonableType <- obj
 			attached var primary : boolean <- false
-			attached var frameWork:FrameworkType <- fw
+			var frameWork:FrameworkType <- fw
 			attached var data : Array.of[String] 
 			attached var nrOfClones : Integer <- 0
 			attached var id : Integer <- replicaId
-			attached var udn : Integer <- 0
-			attached var monitorObject : MonitorType
+			attached var updateNumber : Integer <- 0
+			attached var monitorObject : MonitorType 
 			
 			export operation cloneMe -> [clone : replicaType]
 				self.addClone
-				clone <- replicaClass.create[nrOfClones, frameWork]
+				clone <- replicaClass.create[nrOfClones, frameWork, myObject.cloneMe]
 				
-				for i : Integer <- 0 while i <= data.upperbound by i <- i + 1
-					clone.insert[data[i]]
-				end for
-
 				unavailable
-					(locate self)$stdout.putstring["nameServer: cloneMe. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: cloneMe. Unavailable " || "\n"]
 				end unavailable
 			end cloneMe
 
@@ -27,91 +23,67 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 				data.addUpper[newData]
 				self.print[" inserting new data in clone:  " || newData ]
 				unavailable
-					(locate self)$stdout.putstring["nameServer: insert. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: insert. Unavailable " || "\n"]
 				end unavailable
 			end insert
 			export operation update
 				
 				unavailable
-					(locate self)$stdout.putstring["nameServer: update. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: update. Unavailable " || "\n"]
 				end unavailable
 			end update
 
-			export operation update[prime:replicaType]
-				data.addUpper[prime.getData]
-				self.print[" updated filelist with: " || data[data.upperbound]]
+			export operation update[newData : Any]
+				if self.isPrimary then
+					self.print[" updated filelist with: " || data[data.upperbound]]
+				end if
+
 				unavailable
-					(locate self)$stdout.putstring["nameServer: update. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: update. Unavailable " || "\n"]
 				end unavailable
 			end update
 
 			export operation getUdn -> [updateNr : Integer]
-				updateNr <- udn
+				updateNr <- updateNumber
 			end getUdn
 
 			export operation getData -> [res : String]
-				res <- data[data.upperbound]
+				(locate self)$stdout.putstring["replica: getData. Not Implemented. " || "\n"]
 				unavailable
-					(locate self)$stdout.putstring["nameServer: getData. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: getData. Unavailable " || "\n"]
 				end unavailable
 			end getData
 	
 			export operation setData[newData : Any]
-				if self.isPrimary then 
-
-					data.addupper[view newData as String]
-					self.print[" added " || data[data.upperbound]]
-					framework.notify
-					(locate self)$stdout.putstring["Primary: Replicas has been notified."|| "\n" ]
-				else
-					(locate self)$stdout.putstring["\nReplica: Can not set data. " || "Calling primary."|| "\n" ]
-					var currentPrimary : replicaType <- framework.getPrimary
-					currentPrimary.setData[newData]
-				end if
-				unavailable
-					(locate self)$stdout.putstring["\n SetData. unavailable."|| "\n" ]
-				end unavailable
-
-				%failure
-					%(locate self)$stdout.putstring["Set Data: failure "  ||" \n"]
-					%self.print["Print after Failure"]
-				%end failure
+				
 			end setData
 	
 			export operation setToPrimary[msg : String]
 				primary <- true
 				(locate self)$stdout.putstring["\n" || msg || ". Set to primary."|| "\n" ]
 				unavailable
-					(locate self)$stdout.putstring["nameServer: setToPrimary. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: setToPrimary. Unavailable " || "\n"]
 				end unavailable
 			end setToPrimary
 
 			export operation isPrimary ->[res : boolean]
 				res <- primary
 				unavailable
-					(locate self)$stdout.putstring["nameServer: isPrimary. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: isPrimary. Unavailable " || "\n"]
 				end unavailable
 			end isPrimary
 
 			export operation print[msg : String]
-				if self.isPrimary then 
-					(locate self)$stdout.putstring["\nPrimary: " || msg || " \n" ]
-				else
-					(locate self)$stdout.putstring["\nReplica: " || msg || "\n" ]
-				end if
-				for i:Integer <- 0 while i <= data.upperbound by i <- i + 1
-					(locate self)$stdout.putstring[data[i] || "\n" ]
-				end for
-				%(locate self)$stdout.putstring["\nDebug: print: " || "\n" ]
+				myObject.print[msg]
 				unavailable
-					(locate self)$stdout.putstring["nameServer: print. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: print. Unavailable " || "\n"]
 				end unavailable
 			end print
 
 			export operation getId -> [res : Integer]
 				res <- id
 				unavailable
-					(locate self)$stdout.putstring["nameServer: getId. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: getId. Unavailable " || "\n"]
 				end unavailable
 			end getId
 
@@ -122,14 +94,14 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 					(locate self)$stdout.putstring["\nReplica: Ping" || "\n" ]
 				end if
 				unavailable
-					(locate self)$stdout.putstring["nameServer: ping. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: ping. Unavailable " || "\n"]
 				end unavailable
 			end ping
 
 			operation addClone
 				nrOfClones <- nrOfClones + 1
 				unavailable
-					(locate self)$stdout.putstring["nameServer: addClone. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: addClone. Unavailable " || "\n"]
 				end unavailable
 			end addClone
 
@@ -147,21 +119,21 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 					self.setData["John Bonham"]
 				end if
 				unavailable
-					(locate self)$stdout.putstring["nameServer: runTest. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: runTest. Unavailable " || "\n"]
 				end unavailable
 			end runTest
 
 			process
-				monitorObject <- monitorConstructor.create[]
 				(locate self).delay[Time.create[2 , 0]]
-				const home <- (locate self)
-				self.runTest
+				%const home <- (locate self)
+				%self.runTest
 				unavailable
-					(locate self)$stdout.putstring["nameServer: nameServer Prosess. Unavailable " || "\n"]
+					(locate self)$stdout.putstring["Replica: Replica Prosess. Unavailable " || "\n"]
 				end unavailable
 			end process
 
 			initially
-				data <- Array.of[String].create[0]
+				monitorObject <- MonitorConstructor.create[myObject, self]
+				%data <- Array.of[String].create[0]
 			end initially
 end replicaClass 
