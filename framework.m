@@ -22,7 +22,11 @@ const framework <- object framework
 
 		export operation setReplica [rep : replicaType]
 			replica <- rep
+<<<<<<< HEAD
 			%(locate self)$stdout.putstring["Debug: setReplica. " || "\n"]
+=======
+			(locate self)$stdout.putstring["Debug: setReplica. " || "\n"]
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 			unavailable
 				(locate self)$stdout.putstring["NodeElem: setReplica. Unavailable " || "\n"]
 			end unavailable
@@ -31,7 +35,10 @@ const framework <- object framework
 		export operation getNode -> [n : Node]
 			%(locate self)$stdout.putstring["NodeElem: getNode 1 . " || "\n"]
 			n <- nodeElem
+<<<<<<< HEAD
 			%(locate self)$stdout.putstring["NodeElem: getNode 2. " || "\n"]
+=======
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 			unavailable
 				(locate self)$stdout.putstring["NodeElem: getNode. Unavailable " || "\n"]
 			end unavailable
@@ -41,6 +48,7 @@ const framework <- object framework
 	const nodeDownHandler <- object nodeDownHandler
 		export operation nodeUp[n : node, t : Time]
 			(locate self)$stdout.putstring["Node up handler:" ||"\n"]
+<<<<<<< HEAD
 			unavailable
 				(locate self)$stdout.putstring["nodeHandler: nodeUp . Unavailable " || "\n"]
 			end unavailable
@@ -52,6 +60,19 @@ const framework <- object framework
 			unavailable
 				(locate self)$stdout.putstring["NodeHandler: nodeDown. Unavailable " || "\n"]
 			end unavailable
+=======
+			framework.nodeDown[n]
+			unavailable
+			(locate self)$stdout.putstring["nodeHandler: nodeUp . Unavailable " || "\n"]
+		end unavailable
+		end nodeUp
+
+		export operation nodeDown[n : node, t : Time]
+			(locate self)$stdout.putstring["Node up handler:"  ||"\n"]
+			unavailable
+			(locate self)$stdout.putstring["NodeHandler: nodeDown. Unavailable " || "\n"]
+		end unavailable
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 		end nodeDown
 	end nodeDownHandler
 	%%%%%%%%%%%%%%%%% end inner class %%%%%%%
@@ -118,11 +139,16 @@ const framework <- object framework
 	end notify
 
 	export operation getPrimary -> [primary : replicaType]
+<<<<<<< HEAD
+=======
+		(locate self)$stdout.putstring["Thread: Get primary \n"]
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 		replicas[0].ping
 		primary <- replicas[0]
 		
 		unavailable
 			(locate self)$stdout.putstring["Debug: getPrimary. Unavailable." || "\n"]
+<<<<<<< HEAD
 			self.nodeDown[0, 0]
 			%var throwAway : replicaType <- self.getPrimary
 		end unavailable
@@ -144,15 +170,84 @@ const framework <- object framework
 				else
 					(locate self)$stdout.putstring["Debug: Replica Node is down. Cloning new " || "\n"] 
 				end if
+=======
+			self.nodeDown
+			var throwAway : replicaType <- self.getPrimary
+		end unavailable
+	end getPrimary
+
+	operation nodeDown
+		var i : Integer <- 0
+		loop
+				exit when i >= nodeElements.upperbound
+				begin
+					nodeElements[i].getReplica.ping
+				end
+				i <- i + 1
+		end loop
+
+		unavailable
+			(locate self)$stdout.putstring["Framework: NodeDown: Unavailable"  ||"\n"]
+			nodeElements[i] <- nodeElements[nodeElements.upperbound]
+			var throwAway : nodeElementType <- nodeElements.removeUpper
+			
+			self.maintainReplicas
+		end unavailable
+	end nodeDown
+
+	export operation nodeDown[n : node]
+		var i : Integer <- 0
+		loop
+				exit when i >= nodeElements.upperbound
+				begin
+					if n == nodeElements[i] then 
+						nodeElements[i] <- nodeElements[nodeElements.upperbound]
+						var throwAway : nodeElementType <- nodeElements.removeUpper
+			
+			self.maintainReplicas
+					end if
+				end
+				i <- i + 1
+		end loop
+	end nodeDown
+
+	operation maintainReplicas
+		%var newReplica : replicaType <- replicas[]
+		var i : Integer <- 0
+		loop
+			exit when i >= replicas.upperbound
+				begin
+					replicas[i].ping
+				end
+				i <- i + 1
+		end loop
+		
+		unavailable
+			(locate self)$stdout.putstring["\nFramework. maintainReplicas. Unavailable. "|| "\n" ]
+			if i == 0 then
+				(locate self)$stdout.putstring["Debug: Primary Node is down. Cloning new " || "\n"]
+				replicas[0] <- replicas[1]
+				replicas[0].setToPrimary
+				i <- 1
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 			else
 			 	home$stdout.putstring["Debug: There is not enough nodes to maintain the required " 
 			 		|| "nr of replicas. Please enable a new node." || "\n"]
 			end if
+<<<<<<< HEAD
 
 			unavailable
 				(locate self)$stdout.putstring["Debug: Node down. Unavailable" || "\n"] 
 			end unavailable
 	end nodeDown
+=======
+			replicas[i] <- replicas[0].cloneMe
+			var emptyNode : Node <- self.findAvailableNode
+			move replicas[i] to emptyNode
+			(locate self)$stdout.putstring["After moving new clone" || "\n"] 
+		end unavailable
+	end maintainReplicas
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 
 	operation findAvailableNode -> [availableNode : Node]
 		availableNode <- nil
@@ -160,15 +255,41 @@ const framework <- object framework
 		for i : Integer <- 0 while i <= nodeElements.upperbound by i <- i + 1
 			if nodeElements[i].getReplica == nil then 
 				availableNode <- nodeElements[i].getNode
+<<<<<<< HEAD
 				(locate self)$stdout.putstring["findAvailableNode: found nodeElement with no replica" || "\n"]
 				return	
 			else
 				(locate self)$stdout.putstring["findAvailableNode: No nodes without a replica. i: " ||i.asString || "\n"]
+=======
+				return
+			end if
+		end for
+		unavailable
+			(locate self)$stdout.putstring["\nFramework. FindAvailable nodes. Unavailable"|| "\n" ]
+		end unavailable
+	end findAvailableNode
+
+	operation cleanUpNodeElements
+		(locate self)$stdout.putstring["Framework: cleaning 1:"  ||"\n"]
+		var tmpNodeElem : nodeElementType 
+		for i : Integer <- 0 while i <= nodeElements.upperbound by i <- i + 1
+			(locate self)$stdout.putstring["Framework: cleaning 2:"  ||"\n"]
+			var n : replicaType <- nodeElements[i].getReplica
+			if n !== nil then
+				tmpNodeElem <- nodeElements[i]
+				n.ping	
+				(locate self)$stdout.putstring["Framework: cleaning 3:"  || i.asString||"\n"]
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 			end if
 		end for
 
 		unavailable
+<<<<<<< HEAD
 			(locate self)$stdout.putstring["\nFramework. FindAvailable nodes. Unavailable"|| "\n" ]
+=======
+			tmpNodeElem.setReplica[nil]
+			(locate self)$stdout.putstring["Framework: cleaning. Unavailable:"  ||"\n"]
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 		end unavailable
 	end findAvailableNode
 
@@ -201,7 +322,10 @@ const framework <- object framework
 			%(locate self)$stdout.putstring["instansiateNodeElements:  " || i.asString 
 				%|| " *** " || nodeElements[i - 1].getNode$LNN.asString||"\n"]
 		end for
+<<<<<<< HEAD
 		(locate self)$stdout.putstring["nodeElements upperbound: " || nodeElements.upperbound.asString|| "\n"]
+=======
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 		unavailable
 			(locate self)$stdout.putstring["Framework: instansiateNodeElements. Unavailable " || "\n"]
 		end unavailable
@@ -223,8 +347,12 @@ const framework <- object framework
 
 	initially
 		self.instansiateNodeElements
+<<<<<<< HEAD
 		home.setNodeEventHandler[nodeDownHandler] % Makes the instansiateNodeElements run twice
 		
+=======
+		home.setNodeEventHandler[nodeDownHandler]
+>>>>>>> 6fbbe302f9d115ecd4d3a5389eeeee3f51076179
 		unavailable
 			(locate self)$stdout.putstring["Framework: initially. Unavailable " || "\n"]
 		end unavailable
