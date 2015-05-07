@@ -1,13 +1,13 @@
 export replicaConstructor
 
 const replicaConstructor <- class replicaClass[replicaId : Integer, fw : frameworkType, obj : ClonableType, mon : MonitorType]
-			var myObject : ClonableType <- obj
+			attached var myObject : ClonableType <- obj
 			attached var primary : boolean <- false
 			var frameWork:FrameworkType <- fw
 			attached var nrOfClones : Integer <- 0
 			attached var id : Integer <- replicaId
 			attached var updateNumber : Integer <- 0
-			var monitorObject : MonitorType <- mon
+			attached var monitorObject : MonitorType <- mon
 			
 			export operation cloneMe -> [clone : replicaType]
 				self.addClone

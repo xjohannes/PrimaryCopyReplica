@@ -79,8 +79,8 @@ const framework <- object framework
 				end if
 				nodeTmp <- nodeElements[i].getNode
 				fix replicas[i] at nodeTmp
-				fix objTmp at nodeTmp
-				fix monitorObject at nodeTmp
+				%fix objTmp at nodeTmp
+				%fix monitorObject at nodeTmp
 				replicas[i].print["My new home " || nodeTmp$LNN.asString]
 			end for
 		else
