@@ -62,22 +62,27 @@ const framework <- object framework
 
 	export operation replicateMe[X : ClonableType, N : Integer]
 		replicas <- Array.of[replicaType].create[0]
-		
+		var monitorObject : MonitorType
+		var tmp : replicaType
+		var objTmp : ClonableType
+		var nodeTmp : Node
 		if home.getActiveNodes.upperbound > (N - 1) then 
-			var tmp : replicaType <- replicaConstructor.create[0, self, X]
-			replicas.addUpper[tmp]
-			replicas[0].setToPrimary["First replica"]
-			nodeElements[0].setReplica[replicas[0]]
-			for i : Integer <- 1 while i < N by i <- i + 1
-			(locate self)$stdout.putstring["Debug: replicateMe i: "|| i.asString || "\n"]
-				tmp <- replicaConstructor.create[0, self, X.cloneMe]
+			for i : Integer <- 0 while i < N by i <- i + 1
+				(locate self)$stdout.putstring["Debug: replicateMe i: "|| i.asString || "\n"]
+				objTmp <- X.cloneMe
+				monitorObject <- MonitorConstructor.create[objTmp]
+				tmp <- replicaConstructor.create[i, self, objTmp, monitorObject]
 				replicas.addUpper[tmp]
 				nodeElements[i].setReplica[replicas[i]]
-				fix replicas[i] at nodeElements[i].getNode
-				replicas[i].print["My new home " || nodeElements[i].getNode$LNN.asString]
+				if i == 0 then 
+					replicas[0].setToPrimary["First replica"]
+				end if
+				nodeTmp <- nodeElements[i].getNode
+				fix replicas[i] at nodeTmp
+				fix objTmp at nodeTmp
+				fix monitorObject at nodeTmp
+				replicas[i].print["My new home " || nodeTmp$LNN.asString]
 			end for
-			fix X at nodeElements[0].getNode
-			X.print["My new home. My LNN is: " || nodeElements[0].getNode$LNN.asString]
 		else
 			home$stdout.putstring["There has to be more available nodes than replicas: Nodes > relicas." || "\n"]
 		end if

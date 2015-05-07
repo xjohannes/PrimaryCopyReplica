@@ -1,18 +1,17 @@
 export replicaConstructor
 
-const replicaConstructor <- class replicaClass[replicaId : Integer, fw : frameworkType, obj : ClonableType]
-			attached var myObject : ClonableType <- obj
+const replicaConstructor <- class replicaClass[replicaId : Integer, fw : frameworkType, obj : ClonableType, mon : MonitorType]
+			var myObject : ClonableType <- obj
 			attached var primary : boolean <- false
 			var frameWork:FrameworkType <- fw
-			attached var data : Array.of[String] 
 			attached var nrOfClones : Integer <- 0
 			attached var id : Integer <- replicaId
 			attached var updateNumber : Integer <- 0
-			attached var monitorObject : MonitorType 
+			var monitorObject : MonitorType <- mon
 			
 			export operation cloneMe -> [clone : replicaType]
 				self.addClone
-				clone <- replicaClass.create[nrOfClones, frameWork, myObject.cloneMe]
+				clone <- replicaClass.create[nrOfClones, frameWork, myObject.cloneMe, monitorObject]
 				
 				unavailable
 					(locate self)$stdout.putstring["Replica: cloneMe. Unavailable " || "\n"]
@@ -45,6 +44,10 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 			export operation getUpn -> [updateNr : Integer]
 				updateNr <- updateNumber
 			end getUpn
+
+			export operation getMyObject -> [myObj : ClonableType]
+				myObj <- myObject
+			end getMyObject
 
 			export operation getData -> [res : String]
 				(locate self)$stdout.putstring["replica: getData. Not Implemented. " || "\n"]
@@ -132,7 +135,6 @@ const replicaConstructor <- class replicaClass[replicaId : Integer, fw : framewo
 			end process
 
 			initially
-				monitorObject <- MonitorConstructor.create[myObject, self]
-				%data <- Array.of[String].create[0]
+				%monitorObject <- MonitorConstructor.create[myObject, self]
 			end initially
 end replicaClass 

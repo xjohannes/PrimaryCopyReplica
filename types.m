@@ -21,6 +21,7 @@ const ReplicaType <- typeObject replicaType
 	op update
 	op update[newData : Any]
 	op getUpn -> [updateNr : Integer]
+	op getMyObject -> [myObject : ClonableType]
 	op getData -> [data : String]
 	op setData[data : Any]
 	op cloneMe -> [clone : replicaType]

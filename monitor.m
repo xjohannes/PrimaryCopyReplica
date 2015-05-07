@@ -1,8 +1,8 @@
 export monitorConstructor
 
-const monitorConstructor <- monitor class monitorObj[clonable : ClonableType, replica : replicaType]
+const monitorConstructor <- monitor class monitorObj[clonable : ClonableType]
 	var cl : ClonableType <- clonable
-	var rp : ReplicaType <- replica
+	%var rp : ReplicaType <- replica
 	attached var updateNumber : Integer <- 0
 
 	export operation update[newData : Any, upn : Integer]
