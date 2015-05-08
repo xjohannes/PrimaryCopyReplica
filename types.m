@@ -12,7 +12,7 @@ end frameworkType
 const ReplicaType <- typeObject replicaType
 	op update
 	op setData[newData : Any, upn : Integer]
-	op getState -> [currentState : Any]
+	op getData -> [currentState : Any]
 	op ping
 end replicaType
 
