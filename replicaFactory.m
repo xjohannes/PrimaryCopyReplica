@@ -5,25 +5,7 @@ const ReplicaFactory <- object replicaFactory
 	export operation createPrimary
 		return class primary (abstractReplica) 
 			var replicaFactory : replicaFactoryType
-			%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%
-			const nodeUpAndDownHandler <- object nodeUpAndDownHandler
-				
-				export operation nodeUp[n : node, t : Time]
-					(locate self)$stdout.putstring["Node up handler:" ||"\n"]
-					unavailable
-						(locate self)$stdout.putstring["nodeHandler: nodeUp . Unavailable " || "\n"]
-					end unavailable
-				end nodeUp
-
-				export operation nodeDown[n : node, t : Time]
-					(locate self)$stdout.putstring["Node down handler:"  ||"\n"]
-					unavailable
-						(locate self)$stdout.putstring["NodeHandler: nodeDown. Unavailable " || "\n"]
-					end unavailable
-				end nodeDown
-				
-			end nodeUpAndDownHandler
-			%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%
+		
 			export operation update
 				(locate self)$stdout.putstring["Primary update."]
 				unavailable
@@ -52,7 +34,7 @@ const ReplicaFactory <- object replicaFactory
 			end process
 
 			initially
-				(locate self).setNodeEventHandler[nodeDownHandler]
+				(locate self).setNodeEventHandler[primaryEventHandler]
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable"]
 				end unavailable
@@ -63,25 +45,7 @@ const ReplicaFactory <- object replicaFactory
 	export operation createOrdinary
 		return class ordinary (abstractReplica) 
 			var replicaFactory : replicaFactoryType
-			%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%
-			const nodeUpAndDownHandler <- object nodeUpAndDownHandler
-				
-				export operation nodeUp[n : node, t : Time]
-					(locate self)$stdout.putstring["Node up handler:" ||"\n"]
-					unavailable
-						(locate self)$stdout.putstring["nodeHandler: nodeUp . Unavailable " || "\n"]
-					end unavailable
-				end nodeUp
-
-				export operation nodeDown[n : node, t : Time]
-					(locate self)$stdout.putstring["Node down handler:"  ||"\n"]
-					unavailable
-						(locate self)$stdout.putstring["NodeHandler: nodeDown. Unavailable " || "\n"]
-					end unavailable
-				end nodeDown
-				
-			end nodeUpAndDownHandler
-			%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%
+			
 			export operation update
 				(locate self)$stdout.putstring["Ordinary update."]
 				unavailable
@@ -110,7 +74,7 @@ const ReplicaFactory <- object replicaFactory
 			end process
 
 			initially
-				(locate self).setNodeEventHandler[nodeDownHandler]
+				(locate self).setNodeEventHandler[ordinaryEventHandler]
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable"]
 				end unavailable

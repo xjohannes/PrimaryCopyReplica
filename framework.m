@@ -39,7 +39,6 @@ const framework <- object framework
 	end process
 
 	initially
-		home.setNodeEventHandler[nodeUpAndDownHandler]
 		
 		unavailable
 			(locate self)$stdout.putstring["Framework: initially. Unavailable " || "\n"]
