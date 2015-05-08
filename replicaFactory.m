@@ -2,9 +2,11 @@ export ReplicaFactory
 
 const ReplicaFactory <- object replicaFactory 
 	
-	export operation createPrimary
-		return class primary (abstractReplica) 
-			var replicaFactory : replicaFactoryType
+	export operation createPrimary -> [primary : replicaType]
+		(locate self)$stdout.putstring["ReplicaFactory: Creating Primary replica." || "\n"]
+		return 
+		class primary (abstractReplica) 
+			%var replicaFactory : replicaFactoryType
 		
 			export operation update
 				(locate self)$stdout.putstring["Primary update."]
@@ -42,9 +44,11 @@ const ReplicaFactory <- object replicaFactory
 		end primary
 	end createPrimary
 
-	export operation createOrdinary
-		return class ordinary (abstractReplica) 
-			var replicaFactory : replicaFactoryType
+	export operation createOrdinary -> [primary : replicaType]
+		(locate self)$stdout.putstring["ReplicaFactory: Creating Ordinary replica." || "\n"]
+		return 
+		class ordinary (abstractReplica) 
+			%var replicaFactory : replicaFactoryType
 			
 			export operation update
 				(locate self)$stdout.putstring["Ordinary update."]

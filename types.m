@@ -27,8 +27,8 @@ const MonitorType <- typeObject monitorType
 end monitorType
 
 const ReplicaFactoryType <- typeObject replicaFactoryType
-	op createPrimary
-	op createOrdinary
+	op createPrimary -> [primary : replicaType] 
+	op createOrdinary -> [ordinary : replicaType]
 end replicaFactoryType
 
 const NodeElementType <- typeObject nodeElementType

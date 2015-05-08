@@ -1,8 +1,9 @@
 export nameServerConstructor
 
-const nameServerConstructor <- class nameServerConstructor[replicaId : Integer, fw : frameworkType]
+const nameServerConstructor <- class nameServerConstructor
 			
 	export operation cloneMe -> [clone : ClonableType]
+		(locate self)$stdout.putstring["nameServer: CloneMe " || "\n"]
 	end cloneMe
 
 	export operation setData[newData : Any]

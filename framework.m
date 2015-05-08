@@ -4,17 +4,15 @@ export framework
 const framework <- object framework
 	const home <- (locate self)
 	var activeNodes : NodeList <- home$activeNodes
-	var proxys : Array.of[replicaType] 
+	var proxies : Array.of[replicaType] <- Array.of[replicaType].create[0]
 	var nodeElements : Array.of[nodeElementType] <- Array.of[nodeElementType].create[0]
+	var RF : ReplicaFactoryType <- ReplicaFactory
 	
-	export operation testMethod
-		(locate self)$stdout.putstring["Debug: TestMethod " || "\n"]
-	end testMethod
-
-	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : replicaType]
+	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
 		if home.getActiveNodes.upperbound >= 2 then 
-			for i : Integer <- 1 while i < home.getActiveNodes.upperbound by i <- i + 1
-				
+			proxies.addUpper[RF.createPrimary]
+			for i : Integer <- 1 while i <= home.getActiveNodes.upperbound by i <- i + 1
+				proxies.addUpper[RF.createOrdinary]
 			end for
 		else
 			home$stdout.putstring["There has to be at least 3 active nodes available at this time. " || "\n"]
@@ -26,13 +24,7 @@ const framework <- object framework
 	end replicateMe
 
 	process
-		var i : Integer <- 0
-		loop
-			exit when i >= 240 
-			begin
-				home.delay[Time.create[2, 0]]
-			end
-		end loop
+		
 		unavailable
 			(locate self)$stdout.putstring["Framework: Process Unavailable " || "\n"]
 		end unavailable
