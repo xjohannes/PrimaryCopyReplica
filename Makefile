@@ -1,6 +1,6 @@
 
 install:
-	ec types.m timeServer.m replica.m nameServer.m frameworkAPI.m testSuite.m
+	ec types.m proxy.m primary.m ordinary.m timeServer.m nameServer.m framework.m testSuite.m
 runTime:
 	emx -U -R$(host) types.x frameworkAPI.x replica.x timeServer.x  testSuite.x
 runName:

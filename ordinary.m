@@ -1,6 +1,6 @@
-export Primary
+export Ordinary
 
-const Primary <- class primary (abstractReplica) 
+const Ordinary <- class ordinary (abstractReplica) 
 			
 	export operation cloneMe -> [clone : replicaType]
 				
@@ -16,4 +16,4 @@ const Primary <- class primary (abstractReplica)
 	initially
 
 	end initially
-end primary
+end ordinary
