@@ -4,7 +4,7 @@ export framework
 const framework <- object framework
 	const home <- (locate self)
 	var activeNodes : NodeList <- home$activeNodes
-	var proxys : Array.of[ProxyType] 
+	var proxys : Array.of[replicaType] 
 	var nodeElements : Array.of[nodeElementType] <- Array.of[nodeElementType].create[0]
 	
 	%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%
@@ -30,7 +30,7 @@ const framework <- object framework
 		(locate self)$stdout.putstring["Debug: TestMethod " || "\n"]
 	end testMethod
 
-	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : ProxyType]
+	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : replicaType]
 		if home.getActiveNodes.upperbound >= 2 then 
 			for i : Integer <- 1 while i < home.getActiveNodes.upperbound by i <- i + 1
 				
@@ -51,18 +51,18 @@ const framework <- object framework
 			for i : Integer <- 0 while i < N by i <- i + 1
 				(locate self)$stdout.putstring["Debug: replicateMe i: "|| i.asString || "\n"]
 				objTmp <- X.cloneMe
-				monitorObject <- MonitorConstructor.create[objTmp]
-				tmp <- replicaConstructor.create[i, self, objTmp, monitorObject]
+				%monitorObject <- MonitorConstructor.create[objTmp]
+				%tmp <- replicaConstructor.create[i, self, objTmp, monitorObject]
 				proxys.addUpper[tmp]
 				nodeElements[i].setReplica[proxys[i]]
 				if i == 0 then 
-					proxys[0].setToPrimary["First replica"]
+					%proxys[0].setToPrimary["First replica"]
 				end if
 				nodeTmp <- nodeElements[i].getNode
 				fix proxys[i] at nodeTmp
 				%fix objTmp at nodeTmp
 				%fix monitorObject at nodeTmp
-				proxys[i].print["My new home " || nodeTmp$LNN.asString]
+				%proxys[i].print["My new home " || nodeTmp$LNN.asString]
 			end for
 		else
 			home$stdout.putstring["There has to be more available nodes than proxys: Nodes > relicas." || "\n"]
@@ -79,7 +79,7 @@ const framework <- object framework
 		(locate self)$stdout.putstring["Active nodes upperbound: " || home$activeNodes.upperbound.asString|| "\n"]
 		for i : Integer <- 1 while i <= home$activeNodes.upperbound by i <- i + 1
 			var n : node <- home$activeNodes[i]$theNode
-			nodeElements.addUpper[nodeElementConstructor.create[n]]
+			%nodeElements.addUpper[nodeElementConstructor.create[n]]
 			%(locate self)$stdout.putstring["instansiateNodeElements:  " || i.asString 
 				%|| " *** " || nodeElements[i - 1].getNode$LNN.asString||"\n"]
 		end for

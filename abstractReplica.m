@@ -4,7 +4,10 @@ const abstractReplica <- object abstractReplica
 	attached var myClone : ClonableType
 
 	export operation getData -> [newData : Any]
-
+		(locate self)$stdout.putstring["abstractReplica getData."]
+		unavailable
+			(locate self)$stdout.putstring["abstractReplica getData. Unavailable"]
+		end unavailable
 	end getData
 	%%%%%%%%%%%%%%%%%% abstract operations %%%%%%%%%%%%%%%%
 	export op update

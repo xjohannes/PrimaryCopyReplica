@@ -3,6 +3,7 @@ export NodeElementType
 export ReplicaType
 export MonitorType
 export ClonableType
+export ReplicaFactoryType
 
 const FrameworkType <- typeObject frameworkType 
 	op replicateMe[X : ReplicaType, N : Integer] -> [proxy : ReplicaType]
