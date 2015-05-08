@@ -223,7 +223,7 @@ const framework <- object framework
 
 	initially
 		self.instansiateNodeElements
-		home.setNodeEventHandler[nodeDownHandler] % Makes the instansiateNodeElements run twice
+		%home.setNodeEventHandler[nodeDownHandler] % Makes the instansiateNodeElements run twice
 		
 		unavailable
 			(locate self)$stdout.putstring["Framework: initially. Unavailable " || "\n"]

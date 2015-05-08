@@ -4,8 +4,10 @@ export ReplicaType
 export MonitorType
 export ClonableType
 
+const
+
 const FrameworkType <- typeObject frameworkType 
-	op replicateMe[X : ReplicaType, N : Integer]
+	op replicateMe[X : ReplicaType, N : Integer] 
 	op notify
 	op getPrimary -> [primary : replicaType]
 	op testMethod
