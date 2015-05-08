@@ -5,7 +5,7 @@ export MonitorType
 export ClonableType
 
 const FrameworkType <- typeObject frameworkType 
-	op replicateMe[X : ReplicaType, N : Integer] -> [proxy : ProxyType]
+	op replicateMe[X : ReplicaType, N : Integer] -> [proxy : ReplicaType]
 end frameworkType
 
 const ReplicaType <- typeObject replicaType
@@ -24,6 +24,11 @@ end ClonableType
 const MonitorType <- typeObject monitorType
 	op update[newData : Any, upn : Integer]
 end monitorType
+
+const ReplicaFactoryType <- typeObject replicaFactoryType
+	op createPrimary
+	op createOrdinary
+end replicaFactoryType
 
 const NodeElementType <- typeObject nodeElementType
 	op getReplica -> [rep : replicaType]

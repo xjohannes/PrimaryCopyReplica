@@ -1,11 +1,11 @@
 export abstractReplica
 
 const abstractReplica <- object abstractReplica
-	attached var myClone : Clonable
+	attached var myClone : ClonableType
 
 	export operation getData -> [newData : Any]
 
-	end setData
+	end getData
 	%%%%%%%%%%%%%%%%%% abstract operations %%%%%%%%%%%%%%%%
 	export op update
 	end update
