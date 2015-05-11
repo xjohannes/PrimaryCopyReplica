@@ -20,7 +20,7 @@ end aType
 
 const testCreate <- object testCreate
 	export operation create -> [res : pConstructorType]
-		res <- class pConstructor (aType)
+		res <- class pConstructor (a Type)
 			export operation ping
 				(locate self)$stdout.putstring["testCreate\n"]
 			end ping

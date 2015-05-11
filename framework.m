@@ -5,19 +5,21 @@ const framework <- object framework
 	const home <- (locate self)
 	var activeNodes : NodeList <- home$activeNodes
 	var proxies : Array.of[replicaType] <- Array.of[replicaType].create[0]
-	var nodeElements : Array.of[nodeElementType] <- Array.of[nodeElementType].create[0]
+	var availableNodes : Array.of[Node] <- Array.of[Node].create[0]
 	%var RF : ReplicaFactoryType <- ReplicaFactory
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
 		if home.getActiveNodes.upperbound >= 2 then 
-			proxies.addUpper[ReplicaFactory.createPrimary]
+			proxies.addUpper[ReplicaFactory.createPrimary[availableNodes]]
 			fix proxies[0] at home$activeNodes[1]$theNode
 			proxies[0].ping
 			for i : Integer <- 1 while i < home.getActiveNodes.upperbound by i <- i + 1
 				if i <= N then 
-					proxies.addUpper[ReplicaFactory.createOrdinary]
+					proxies.addUpper[ReplicaFactory.createOrdinary[availableNodes]]
 					fix proxies[i] at home$activeNodes[(i + 1)]$theNode
 					proxies[i].ping
+				else
+					availableNodes.addUpper[home$activeNodes[(i + 1)]$theNode]
 				end if
 			end for
 			if N > (proxies.upperbound + 1) then 

@@ -2,15 +2,36 @@ export ReplicaFactory
 
 const ReplicaFactory <- object replicaFactory 
 	
-	export operation createPrimary -> [primary : replicaType]
+	export operation createPrimary[availableNodes : Array.of[Node]] -> [primary : replicaType]
 		(locate self)$stdout.putstring["ReplicaFactory: Creating Primary replica." || "\n"]
 		primary <- object primary  
 			%var replicaFactory : replicaFactoryType
 		
+			%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%
+			const primaryEventHandler <- object primaryEventHandler
+				
+				export operation nodeUp[n : node, t : Time]
+					(locate self)$stdout.putstring["Primary Node up handler:" ||"\n"]
+					availableNodes.addUpper[n]
+					unavailable
+						(locate self)$stdout.putstring["Ordinary nodeHandler: nodeUp . Unavailable " || "\n"]
+					end unavailable
+				end nodeUp
+				
+				export operation nodeDown[n : node, t : Time]
+					(locate self)$stdout.putstring["Ordinary Node is down:"  ||"\n"]
+					primary.update
+					unavailable
+						(locate self)$stdout.putstring["Primary EventHandler: nodeDown. Unavailable " || "\n"]
+					end unavailable
+				end nodeDown
+				
+			end primaryEventHandler
+			%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%
 			export operation update
 				(locate self)$stdout.putstring["Primary update. " || "\n"]
 				unavailable
-					(locate self)$stdout.putstring["Primary update. Unavailable"]
+					(locate self)$stdout.putstring["Primary update. Unavailable\n"]
 				end unavailable
 			end update
 
@@ -60,13 +81,33 @@ const ReplicaFactory <- object replicaFactory
 		end primary
 	end createPrimary
 
-	export operation createOrdinary -> [ordinary : replicaType]
+	export operation createOrdinary[availableNodes : Array.of[Node]] -> [ordinary : replicaType]
 		(locate self)$stdout.putstring["ReplicaFactory: Creating Ordinary replica." || "\n"]
 		ordinary <- object ordinary  
 			%var replicaFactory : replicaFactoryType
-			
+			%%%%%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%%%%%%%%%%%%
+			const ordinaryEventHandler <- object ordinaryEventHandler
+				
+				export operation nodeUp[n : node, t : Time]
+					(locate self)$stdout.putstring["Primary Node up handler:" ||"\n"]
+					availableNodes.addUpper[n]
+					unavailable
+						(locate self)$stdout.putstring["Primary nodeHandler: nodeUp . Unavailable " || "\n"]
+					end unavailable
+				end nodeUp
+				
+				export operation nodeDown[n : node, t : Time]
+					(locate self)$stdout.putstring["Primary Node is down:"  ||"\n"]
+					ordinary.update
+					unavailable
+						(locate self)$stdout.putstring["Ordinary EventHandler: nodeDown. Unavailable " || "\n"]
+					end unavailable
+				end nodeDown
+	
+			end ordinaryEventHandler
+			%%%%%%%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%%%%%%%%
 			export operation update
-				(locate self)$stdout.putstring["Ordinary update."]
+				(locate self)$stdout.putstring["Ordinary update. \n"]
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
 				end unavailable
