@@ -27,8 +27,8 @@ const MonitorType <- typeObject monitorType
 end monitorType
 
 const ReplicaFactoryType <- typeObject replicaFactoryType
-	op createPrimary[availableNodes : Array.of[node]] -> [primary : replicaType] 
-	op createOrdinary[availableNodes : Array.of[node]] -> [ordinary : replicaType]
+	op createPrimary[availableNodes : Array.of[node], replicas : Array.of[replicaType], N : Integer, RF : ReplicaFactoryType] -> [primary : replicaType] 
+	op createOrdinary[availableNodes : Array.of[node], replicas : Array.of[replicaType], N : Integer, RF : ReplicaFactoryType] -> [ordinary : replicaType]
 end replicaFactoryType
 
 const NodeElementType <- typeObject nodeElementType

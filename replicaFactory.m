@@ -2,15 +2,15 @@ export ReplicaFactory
 
 const ReplicaFactory <- object replicaFactory 
 	
-	export operation createPrimary[availableNodes : Array.of[Node], replicas : Array.of[replicaType], N : Integer]
-		 -> [ordinary : replicaType]
+	export operation createPrimary[availableNodes : Array.of[Node], replicas : Array.of[replicaType], N : Integer, RF : ReplicaFactoryType]
+		 -> [primary : replicaType]
 		(locate self)$stdout.putstring["ReplicaFactory: Creating Primary replica." || "\n"]
-		ordinary <- object ordinary  
+		primary <- object primary  
 			%var replicaFactory : replicaFactoryType
-			attached var replicas : Array.of[replicaType] <- replicas
+			%attached var replicas : Array.of[replicaType] <- replicas
 			var lock : boolean <- false
 			%%%%%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%%%%%%%%%%%%
-			const ordinaryEventHandler <- object ordinaryEventHandler
+			const primaryEventHandler <- object primaryEventHandler
 				
 				export operation nodeUp[n : node, t : Time]
 					(locate self)$stdout.putstring["Primary NodeUp:" ||"\n"]
@@ -22,13 +22,13 @@ const ReplicaFactory <- object replicaFactory
 				
 				export operation nodeDown[n : node, t : Time]
 					(locate self)$stdout.putstring["Primary NodeDown:"  ||"\n"]
-					ordinary.update
+					primary.update
 					unavailable
 						(locate self)$stdout.putstring["Primary: nodeDown. Unavailable " || "\n"]
 					end unavailable
 				end nodeDown
 	
-			end ordinaryEventHandler
+			end primaryEventHandler
 			%%%%%%%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%%%%%%%%
 			export operation update
 				(locate self)$stdout.putstring["Primary update. \n"]
@@ -45,7 +45,7 @@ const ReplicaFactory <- object replicaFactory
 			end setData
 
 			export operation getData -> [newData : Any]
-				(locate self)$stdout.putstring["ordinary getData." || "\n"]
+				(locate self)$stdout.putstring["primary getData." || "\n"]
 				unavailable
 					(locate self)$stdout.putstring["abstractReplica getData. Unavailable" || "\n"]
 				end unavailable
@@ -63,7 +63,19 @@ const ReplicaFactory <- object replicaFactory
 				if lock then 
 
 				end if
-			end register	
+			end register
+
+			operation maintainReplicas
+				(locate self)$stdout.putstring["1. Primary maintainReplicas. N: " ||N.asString|| " () " || replicas.upperbound.asString|| "\n"]
+				if availableNodes !== nil then
+					if replicas.upperbound <= N then
+						(locate self)$stdout.putstring["2. Primary maintainReplicas. N: " ||N.asString|| " () " || replicas.upperbound.asString|| "\n"] 
+						var tmp : replicaType <- ReplicaFactory.createOrdinary[availableNodes, replicas, N, RF]
+						(locate self)$stdout.putstring["3. Primary maintainReplicas. N: " ||N.asString|| " () " || replicas.upperbound.asString|| "\n"]
+						%replicas.addUpper[tmp]
+					end if
+				end if
+			end maintainReplicas	
 
 			process
 				var i : Integer <- 0
@@ -73,6 +85,7 @@ const ReplicaFactory <- object replicaFactory
 						(locate self)$stdout.putstring["Primary processloop. N: " ||N.asString|| " () " || availableNodes.upperbound.asString|| "\n"]
 						(locate self).delay[Time.create[2, 0]]
 						self.ping
+						self.maintainReplicas
 					end
 				end loop
 				unavailable
@@ -83,20 +96,20 @@ const ReplicaFactory <- object replicaFactory
 			initially
 				(locate self).delay[Time.create[2, 0]]
 				replicas <- replicas
-				(locate self).setNodeEventHandler[ordinaryEventHandler]
+				(locate self).setNodeEventHandler[primaryEventHandler]
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable"|| "\n"]
 				end unavailable
 			end initially
-		end ordinary
+		end primary
 	end createPrimary	
 
-	export operation createOrdinary[availableNodes : Array.of[Node], replicas : Array.of[replicaType], N : Integer]
+	export operation createOrdinary[availableNodes : Array.of[Node], replicas : Array.of[replicaType], N : Integer, RF : ReplicaFactoryType]
 		 -> [ordinary : replicaType]
 		(locate self)$stdout.putstring["ReplicaFactory: Creating Ordinary replica." || "\n"]
 		ordinary <- object ordinary  
 			%var replicaFactory : replicaFactoryType
-			attached var replicas : Array.of[replicaType] <- replicas
+			%attached var replicas : Array.of[replicaType] <- replicas
 			var lock : boolean <- false
 			%%%%%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%%%%%%%%%%%%
 			const ordinaryEventHandler <- object ordinaryEventHandler
