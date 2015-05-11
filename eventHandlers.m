@@ -4,15 +4,22 @@ export ordinaryEventHandler
 const primaryEventHandler <- object primaryEventHandler
 	
 	export operation nodeUp[n : node, t : Time]
-		(locate self)$stdout.putstring["Primary Node up handler:" ||"\n"]
+		(locate self)$stdout.putstring["PrimaryGeneral Node up handler:" ||"\n"]
 		unavailable
-			(locate self)$stdout.putstring["Primary nodeHandler: nodeUp . Unavailable " || "\n"]
+			(locate self)$stdout.putstring["PrimaryGeneral nodeHandler: nodeUp . Unavailable " || "\n"]
 		end unavailable
 	end nodeUp
+
 	export operation nodeDown[n : node, t : Time]
-		(locate self)$stdout.putstring["Primary Node down handler:"  ||"\n"]
+		(locate self)$stdout.putstring["PrimaryGeneral Node down handler:"  ||"\n"]
+
 		unavailable
-			(locate self)$stdout.putstring["Primary EventHandler: nodeDown. Unavailable " || "\n"]
+			(locate self)$stdout.putstring["PrimaryGeneral EventHandler: nodeDown. Unavailable " || "\n"]
+			% Loop proxies, not 0, till you get one that is not down. Call ordinary.maintainReplicas.
+			% creates new Primary and moves to available node. How to find an available node? Replicas 
+			% and activeNodes have same index. This will not do. Loop through replicas and compare LNN
+			% Make nodeEntries with replica. nodeEntries with replica <- nil is available
+			% Need updateNodeEntries method. Make an array of available nodes and send it with the replicas
 		end unavailable
 	end nodeDown
 	
@@ -23,15 +30,15 @@ end primaryEventHandler
 const ordinaryEventHandler <- object ordinaryEventHandler
 	
 	export operation nodeUp[n : node, t : Time]
-		(locate self)$stdout.putstring["Ordinary Node up handler:" ||"\n"]
+		(locate self)$stdout.putstring["OrdinaryGeneral Node up handler:" ||"\n"]
 		unavailable
-			(locate self)$stdout.putstring["Ordinary nodeHandler: nodeUp . Unavailable " || "\n"]
+			(locate self)$stdout.putstring["OrdinaryGeneral nodeHandler: nodeUp . Unavailable " || "\n"]
 		end unavailable
 	end nodeUp
 	export operation nodeDown[n : node, t : Time]
-		(locate self)$stdout.putstring["Ordinary Node down handler:"  ||"\n"]
+		(locate self)$stdout.putstring["OrdinaryGeneral Node down handler:"  ||"\n"]
 		unavailable
-			(locate self)$stdout.putstring["Ordinary EventHandler: nodeDown. Unavailable " || "\n"]
+			(locate self)$stdout.putstring["OrdinaryGeneral EventHandler: nodeDown. Unavailable " || "\n"]
 		end unavailable
 	end nodeDown
 	
