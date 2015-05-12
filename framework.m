@@ -6,7 +6,7 @@ const framework <- object framework
 	var activeNodes : NodeList <- home$activeNodes
 	var replicas : Array.of[replicaType] <- Array.of[replicaType].create[0]
 	var availableNodes : Array.of[Node] <- Array.of[Node].create[0]
-	%var RF : ReplicaFactoryType <- ReplicaFactory
+	var replicasUpperbound : Integer <- 0
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
 		if home.getActiveNodes.upperbound >= 2 then 
@@ -16,17 +16,16 @@ const framework <- object framework
 					availableNodes.addUpper[home$activeNodes[i]$theNode]
 				else
 					replicas.addUpper[OridnaryConstructor.create[availableNodes, replicas, N]]
-					fix replicas[proxyIndex] at home$activeNodes[i]$theNode
-					proxyIndex <- proxyIndex + 1
+					fix replicas[replicasUpperbound] at home$activeNodes[i]$theNode
+					replicasUpperbound <- replicasUpperbound + 1
 				end if
 			end for
 			replicas.addUpper[PrimaryConstructor.create[availableNodes, replicas, N]]
-			fix replicas[proxyIndex] at home$activeNodes[1]$theNode
+			fix replicas[replicasUpperbound] at home$activeNodes[1]$theNode
 
-			if N > (replicas.upperbound + 1) then 
-				(locate self)$stdout.putstring["Debug: replicateMe " || "\n"]	
+			if N > (replicasUpperbound + 1) then 
 				home$stdout.putstring["There is not enough active nodes available to create N replicas. "
-				|| "Could only create  " || (replicas.upperbound + 1).asString || "replicas. "|| "\n"]
+				|| "Could only create  " || replicasUpperbound.asString || "replicas. "|| "\n"]
 			end if
 
 		else

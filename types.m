@@ -10,9 +10,10 @@ const FrameworkType <- typeObject frameworkType
 end frameworkType
 
 const ReplicaType <- typeObject replicaType
-	op update
+	op update[notificationCode : Integer]
 	op setData[newData : Any, upn : Integer]
 	op getData -> [currentState : Any]
+	op maintainReplicas
 	op ping
 end replicaType
 
