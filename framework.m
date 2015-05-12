@@ -15,18 +15,20 @@ const framework <- object framework
 				if i > N then 
 					availableNodes.addUpper[home$activeNodes[i]$theNode]
 				else
-					replicas.addUpper[ReplicaFactory.createOrdinary[availableNodes, replicas, N, ReplicaFactory]]
+					replicas.addUpper[OridnaryConstructor.create[availableNodes, replicas, N]]
 					fix replicas[proxyIndex] at home$activeNodes[i]$theNode
 					proxyIndex <- proxyIndex + 1
 				end if
 			end for
-			replicas.addUpper[ReplicaFactory.createPrimary[availableNodes, replicas, N, ReplicaFactory]]
+			replicas.addUpper[PrimaryConstructor.create[availableNodes, replicas, N]]
 			fix replicas[proxyIndex] at home$activeNodes[1]$theNode
-			replicas[0].ping
+
 			if N > (replicas.upperbound + 1) then 
+				(locate self)$stdout.putstring["Debug: replicateMe " || "\n"]	
 				home$stdout.putstring["There is not enough active nodes available to create N replicas. "
 				|| "Could only create  " || (replicas.upperbound + 1).asString || "replicas. "|| "\n"]
 			end if
+
 		else
 			home$stdout.putstring["There has to be at least 3 active nodes available at this time. " || "\n"]
 		end if	
