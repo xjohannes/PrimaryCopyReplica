@@ -1,16 +1,22 @@
 export FrameworkType
 export NodeElementType
 export ReplicaType
-export MonitorType
+export EventHandlerType
 export ClonableType
-export ReplicaFactoryType
+export ConstructorType
 
 const FrameworkType <- typeObject frameworkType 
 	op replicateMe[X : ReplicaType, N : Integer] -> [proxy : ReplicaType]
 end frameworkType
 
 const ReplicaType <- typeObject replicaType
-	op update[notificationCode : Integer]
+	op getId -> [replicaId : Integer]
+	op getN -> [requiredReplicas : Integer]
+	op getAvailableNodes -> [availableNodes : Array.of[node]]
+	op getReplicas -> [replicas : Array.of[replicaType]]
+
+	op update
+	op update[primary : replicaType]
 	op setData[newData : Any, upn : Integer]
 	op getData -> [currentState : Any]
 	op maintainReplicas
@@ -23,14 +29,14 @@ const ClonableType <- typeObject ClonableType
 	op print[msg : String]
 end ClonableType
 
-const MonitorType <- typeObject monitorType
-	op update[newData : Any, upn : Integer]
-end monitorType
+const EventHandlerType <- typeObject EventHandlerType
+	op nodeUp[n : node, t : Time]
+	op nodeDown[n : node, t : Time]
+end EventHandlerType
 
-const ReplicaFactoryType <- typeObject replicaFactoryType
-	op createPrimary[availableNodes : Array.of[node], replicas : Array.of[replicaType], N : Integer] -> [primary : replicaType] 
-	op createOrdinary[availableNodes : Array.of[node], replicas : Array.of[replicaType], N : Integer] -> [ordinary : replicaType]
-end replicaFactoryType
+const ConstructorType <- typeObject ConstructorType
+	op create[id : Integer, availableNodes : Array.of[Node], reps : Array.of[replicaType], N : Integer, PrimConstructor : ConstructorType] -> [res : replicaType]
+end ConstructorType
 
 const NodeElementType <- typeObject nodeElementType
 	op getReplica -> [rep : replicaType]
