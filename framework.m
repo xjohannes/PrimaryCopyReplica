@@ -24,10 +24,10 @@ const framework <- object framework
 			end for
 			replicas[0].setModifiedArrays[replicas, availableNodes]
 
-			if N > (replicasUpperbound + 1) then 
-				home$stdout.putstring["There is not enough active nodes available to create N replicas. "
-				|| "Could only create  " || replicasUpperbound.asString || "replicas. "|| "\n"]
-			end if
+			%if N > (replicasUpperbound) then 
+				%home$stdout.putstring["Framework: There is not enough active nodes available to create N replicas. "
+				%|| "Could only create  " || replicasUpperbound.asString || "replicas. "|| "\n"]
+			%end if
 
 		else
 			home$stdout.putstring["There has to be at least 3 active nodes available at this time. " || "\n"]

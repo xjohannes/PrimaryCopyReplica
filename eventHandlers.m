@@ -8,8 +8,9 @@ const primaryEventHandler <- class primaryEventHandler[myReplicaObject : replica
 
 				export operation nodeUp[nodeUp : node, t : Time]
 					(locate self)$stdout.putstring["Primary NodeUp:" ||"\n"]
-					availableNodes <- myReplicaObject.getAvailableNodes
-					availableNodes.addUpper[nodeUp]
+
+					
+					myReplicaObject.setAvailableNode[nodeUp]
 					myReplicaObject.maintainReplicas
 
 					unavailable
