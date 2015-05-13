@@ -11,5 +11,8 @@ const testSuite <- object testSuite
 		unavailable
 			(locate self)$stdout.putstring["TestSuit Prosess. Unavailable " || "\n"]
 		end unavailable
+		failure
+			(locate self)$stdout.putstring["TestSuite Failure: 4. Process." ||"\n"]
+		end failure
 	end process
 end testSuite

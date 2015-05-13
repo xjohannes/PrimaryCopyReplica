@@ -19,7 +19,9 @@ const ReplicaType <- typeObject replicaType
 	op update[primary : replicaType]
 	op setData[newData : Any, upn : Integer]
 	op getData -> [currentState : Any]
+	op removeUnavailableReplica
 	op maintainReplicas
+	op setModifiedArrays[reps : Array.of[replicaType], an : Array.of[node]]
 	op ping
 end replicaType
 

@@ -4,37 +4,29 @@ export framework
 const framework <- object framework
 	const home <- (locate self)
 	var activeNodes : NodeList <- home$activeNodes
-	var replicas : Array.of[replicaType] 
+	var replicas : Array.of[replicaType] <- Array.of[replicaType].create[0]
 	var availableNodes : Array.of[Node] <- Array.of[Node].create[0]
-	%var replicasUpperbound : Integer <- 0
+	var replicasUpperbound : Integer <- 0
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
-		replicas <- Array.of[replicaType].create[N]
-		(locate self)$stdout.putstring["Debug: replacateMe. reps.upperbound "||replicas.upperbound.asString || "\n"]
 		if home.getActiveNodes.upperbound >= 2 then 
-			(locate self)$stdout.putstring["Debug: replacateMe. Asert 1 " || "\n"]
-			replicas[0] <- OridnaryConstructor.create[99, availableNodes, replicas, N, PrimaryConstructor]
-			(locate self)$stdout.putstring["Debug: replacateMe. Asert 2" || "\n"]
+			replicas.addUpper[PrimaryConstructor.create[0, availableNodes, replicas, N, OridnaryConstructor]]
+			fix replicas[replicasUpperbound] at home$activeNodes[1]$theNode
+			replicasUpperbound <- replicasUpperbound + 1
 			for i : Integer <- home.getActiveNodes.upperbound while i > 1  by i <- i - 1
 				if i > N then 
 					availableNodes.addUpper[home$activeNodes[i]$theNode]
 				else
-					(locate self)$stdout.putstring["Debug: replacateMe. Asert 3" || "\n"]
-					var tmp : replicaType <- OridnaryConstructor.create[i, availableNodes, replicas, N, PrimaryConstructor]
-					(locate self)$stdout.putstring["Debug: replacateMe. Asert 4" || "\n"]
-					replicas[i] <- tmp
-					(locate self)$stdout.putstring["Debug: replacateMe. Asert 5" || "\n"]
-					fix replicas[i] at home$activeNodes[i]$theNode
-					(locate self)$stdout.putstring["Debug: replacateMe. Asert 6" || "\n"]
-					%replicasUpperbound <- replicasUpperbound + 1
+					replicas.addUpper[OridnaryConstructor.create[replicasUpperbound, availableNodes, replicas, N, PrimaryConstructor]]
+					fix replicas[replicasUpperbound] at home$activeNodes[i]$theNode
+					replicasUpperbound <- replicasUpperbound + 1
 				end if
 			end for
-			replicas[0] <- PrimaryConstructor.create[0, availableNodes, replicas, N, OridnaryConstructor]
-			fix replicas[0] at home$activeNodes[1]$theNode
+			replicas[0].setModifiedArrays[replicas, availableNodes]
 
-			if N > (replicas.upperbound + 1) then 
+			if N > (replicasUpperbound + 1) then 
 				home$stdout.putstring["There is not enough active nodes available to create N replicas. "
-				|| "Could only create  " || (replicas.upperbound + 1).asString || "replicas. "|| "\n"]
+				|| "Could only create  " || replicasUpperbound.asString || "replicas. "|| "\n"]
 			end if
 
 		else
@@ -59,6 +51,9 @@ const framework <- object framework
 		unavailable
 			(locate self)$stdout.putstring["Framework: Process Unavailable " || "\n"]
 		end unavailable
+		failure
+			(locate self)$stdout.putstring["Framework Failure: 4. Process." ||"\n"]
+		end failure
 	end process
 
 	initially
