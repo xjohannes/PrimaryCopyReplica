@@ -1,10 +1,9 @@
 
 export PrimaryConstructor
 
-const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, OridnaryConstructor : ConstructorType]
-			attached var replicas : Array.of[replicaType]
-			var availableNodes : Array.of[node] 
-			
+const PrimaryConstructor <- class primaryConstructor[id : Integer, availableNodes : Array.of[Node]
+						, reps : Array.of[replicaType], N : Integer, OrdinConstructor : ConstructorType]
+			attached var replicas : Array.of[replicaType] 
 			var lock : boolean <- false
 			var init : boolean <- false
 			%var me : replicaType <- self
@@ -132,7 +131,8 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				||" ** repl upperbound:"||(replicas.upperbound).asString ||". availableNodes upperbound: "
 				||(availableNodes.upperbound).asString|| "\n"]
 					if availableNodes.upperbound >= 0  then
-						replicas.addUpper[OridnaryConstructor.create[(replicas.upperbound +1), N, PrimaryConstructor]]
+						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1)
+								, availableNodes, replicas, N, OrdinConstructor]]
 						(locate self)$stdout.putstring["Primary maintainReplicas. ME: "
 						|| (locate self)$LNN.asString || ", new node: "
 						|| availableNodes[availableNodes.upperbound]$LNN.asString||"\n"]
@@ -163,7 +163,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				end if
 				if init == false then 
 					self.notify[self]
-					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N]]
+					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N, OrdinConstructor]]
 					init <- true
 				end if
 				(locate self)$stdout.putstring["Primary setModifiedArrays. 3" 

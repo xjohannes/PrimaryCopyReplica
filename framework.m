@@ -10,29 +10,19 @@ const framework <- object framework
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
 		if home.getActiveNodes.upperbound >= 2 then 
-			home$stdout.putstring["Debug 1. " || "\n"]
-			replicas.addUpper[PrimaryConstructor.create[0, N, OridnaryConstructor]]
-			home$stdout.putstring["Debug 2. " || "\n"]
+			replicas.addUpper[PrimaryConstructor.create[0, availableNodes, replicas, N, OridnaryConstructor]]
 			fix replicas[replicasUpperbound] at home$activeNodes[1]$theNode
-			home$stdout.putstring["Debug 3. " || "\n"]
 			replicasUpperbound <- replicasUpperbound + 1
-			home$stdout.putstring["Debug 4. " || "\n"]
 			for i : Integer <- home.getActiveNodes.upperbound while i > 1  by i <- i - 1
-				home$stdout.putstring["Debug 5. " || "\n"]
 				if i > N then 
 					availableNodes.addUpper[home$activeNodes[i]$theNode]
-					home$stdout.putstring["Debug 6. " || "\n"]
 				else
-					replicas.addUpper[OridnaryConstructor.create[replicasUpperbound, N, PrimaryConstructor]]
-					home$stdout.putstring["Debug 7. " || "\n"]
+					replicas.addUpper[OridnaryConstructor.create[replicasUpperbound, availableNodes, replicas, N, PrimaryConstructor]]
 					fix replicas[replicasUpperbound] at home$activeNodes[i]$theNode
-					home$stdout.putstring["Debug 8. " || "\n"]
 					replicasUpperbound <- replicasUpperbound + 1
 				end if
 			end for
-			home$stdout.putstring["Debug 9. " || "\n"]
 			replicas[0].setModifiedArrays[replicas, availableNodes]
-			home$stdout.putstring["Debug 10. " || "\n"]
 
 			if N > (replicasUpperbound) then 
 				home$stdout.putstring["Framework: There is not enough active nodes available to create N replicas. "

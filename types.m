@@ -38,7 +38,7 @@ const EventHandlerType <- typeObject EventHandlerType
 end EventHandlerType
 
 const ConstructorType <- typeObject ConstructorType
-	op create[id : Integer, N : Integer, PrimConstructor : ConstructorType] -> [res : replicaType]
+	op create[id : Integer, availableNodes : Array.of[Node], reps : Array.of[replicaType], N : Integer, PrimConstructor : ConstructorType] -> [res : replicaType]
 end ConstructorType
 
 const NodeElementType <- typeObject nodeElementType
