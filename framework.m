@@ -10,14 +10,14 @@ const framework <- object framework
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
 		if home.getActiveNodes.upperbound >= 2 then 
-			replicas.addUpper[PrimaryConstructor.create[0, availableNodes, replicas, N, OridnaryConstructor]]
+			replicas.addUpper[PrimaryConstructor.create[0, N, OridnaryConstructor]]
 			fix replicas[replicasUpperbound] at home$activeNodes[1]$theNode
 			replicasUpperbound <- replicasUpperbound + 1
 			for i : Integer <- home.getActiveNodes.upperbound while i > 1  by i <- i - 1
 				if i > N then 
 					availableNodes.addUpper[home$activeNodes[i]$theNode]
 				else
-					replicas.addUpper[OridnaryConstructor.create[replicasUpperbound, availableNodes, replicas, N, PrimaryConstructor]]
+					replicas.addUpper[OridnaryConstructor.create[replicasUpperbound, N, PrimaryConstructor]]
 					fix replicas[replicasUpperbound] at home$activeNodes[i]$theNode
 					replicasUpperbound <- replicasUpperbound + 1
 				end if

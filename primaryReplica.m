@@ -1,8 +1,7 @@
 
 export PrimaryConstructor
 
-const PrimaryConstructor <- class primaryConstructor[id : Integer, AN : Array.of[Node]
-						, reps : Array.of[replicaType], N : Integer, OrdinConstructor : ConstructorType]
+const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType] 
 			attached var availableNodes : Array.of[node] 
 			var lock : boolean <- false
@@ -132,8 +131,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, AN : Array.of
 				||" ** repl upperbound:"||(replicas.upperbound).asString ||". availableNodes upperbound: "
 				||(availableNodes.upperbound).asString|| "\n"]
 					if availableNodes.upperbound >= 0  then
-						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1)
-								, availableNodes, replicas, N, OrdinConstructor]]
+						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1), N, OrdinConstructor]]
 						(locate self)$stdout.putstring["Primary maintainReplicas. ME: "
 						|| (locate self)$LNN.asString || ", new node: "
 						|| availableNodes[availableNodes.upperbound]$LNN.asString||"\n"]
