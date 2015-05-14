@@ -23,7 +23,7 @@ const framework <- object framework
 					replicasUpperbound <- replicasUpperbound + 1
 				end if
 			end for
-			replicas[0].setModifiedArrays[replicas, availableNodes]
+			replicas[0].initializeDataStructures[replicas, availableNodes]
 
 			if N > (replicasUpperbound) then 
 				home$stdout.putstring["Framework: There is not enough active nodes available to create N replicas. "
@@ -35,7 +35,7 @@ const framework <- object framework
 		end if	
 
 		unavailable
-			(locate self)$stdout.putstring["Debug: replacateMe. Unavailable " || "\n"]
+			(locate self)$stdout.putstring["Framework: replacateMe. Unavailable " || "\n"]
 		end unavailable
 	end replicateMe
 

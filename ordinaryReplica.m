@@ -18,19 +18,15 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			end getN
 
 			export operation getAvailableNodes -> [res : Array.of[node]]
-				(locate self)$stdout.putstring["Ordinary getAvailableNodes.Before: AvailableN.upperbound:"
-					|| availableNodes.upperbound.asString || "\n"]
 				res <- availableNodes
-				(locate self)$stdout.putstring["Ordinary getAvailableNodes. After: AvailableN.upperbound:"
-					|| availableNodes.upperbound.asString || "\n"]
 			end getAvailableNodes
 
 			export operation addAvailableNode[newAvailableNode : Node]
-				(locate self)$stdout.putstring["Ordinary addAvailableNode. AN.upper: "
-					||availableNodes.upperbound.asString || "\n"]
+				
 				availableNodes.addUpper[newAvailableNode]
-				(locate self)$stdout.putstring["Ordinary addAvailableNode. AN.upper: "
+				(locate self)$stdout.putstring["Ordinary addAvailableNode. AvailableNodes.upper: "
 					||availableNodes.upperbound.asString || "\n"]
+				
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
 				end unavailable
@@ -99,7 +95,7 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 
 			export operation maintainReplicas
 				replicas[0] <- PrimeConstructor.create[0, N, PrimeConstructor, OrdinConstructor]
-				replicas[0].setModifiedArrays[replicas, availableNodes]
+				replicas[0].initializeDataStructures[replicas, availableNodes]
 				if availableNodes !== nil & availableNodes.upperbound > -1 then 
 					fix replicas[replicas.upperbound] at availableNodes.removeUpper
 				else
@@ -121,10 +117,24 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				end if
 			end register
 
-			export operation setModifiedArrays[reps : Array.of[replicaType], availableN : Array.of[node]]
-				replicas <- reps
-				availableNodes <- availableN
-			end setModifiedArrays	
+			export operation initializeDataStructures[reps : Array.of[replicaType], availableN : Array.of[node]]
+				self.initReplicas[reps]
+				self.initAvailableNodes[availableN]
+			end initializeDataStructures
+
+			operation initReplicas[reps : Array.of[replicaType]]
+				replicas <- Array.of[replicaType].create[(reps.upperbound + 1)]
+				for i : Integer <- 0 while i <= reps.upperbound by i <- i + 1
+					replicas[i] <- reps[i]
+				end for
+			end	initReplicas
+
+			operation initAvailableNodes[availableN : Array.of[node]]
+				availableNodes <- Array.of[node].create[(availableN.upperbound + 1)]
+				for i : Integer <- 0 while i <= availableN.upperbound by i <- i + 1
+					availableNodes[i] <- availableN[i]
+				end for
+			end	initAvailableNodes	
 
 			process
 				loop
@@ -148,10 +158,10 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 					end
 				end loop
 				unavailable
-					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["Ordinary process. Unavailable" || "\n"]
 				end unavailable
 				failure
-					(locate self)$stdout.putstring["Ordinary Failure:. Process." ||"\n"]
+					(locate self)$stdout.putstring["Ordinary process. Failure." ||"\n"]
 				end failure
 			end process
 

@@ -17,11 +17,8 @@ const primaryEventHandler <- class primaryEventHandler[myReplicaObject : replica
 				end nodeUp
 				
 				export operation nodeDown[nodeDown : node, t : Time]
-					(locate self)$stdout.putstring["Primary: nodeDown 1. " || "\n"]
 					myReplicaObject.removeUnavailableReplica
-					(locate self)$stdout.putstring["Primary: nodeDown. 2" || "\n"]
 					myReplicaObject.maintainReplicas
-					(locate self)$stdout.putstring["Primary: nodeDown. 3" || "\n"]
 					
 					unavailable 
 						(locate self)$stdout.putstring["Primary: nodeDown. Unavailable " || "\n"]
@@ -53,9 +50,8 @@ const ordinaryEventHandler <- class ordinaryEventHandler[myReplicaObject : repli
 				end nodeUp
 				
 				export operation nodeDown[nodeDown : node, t : Time]
-					(locate self)$stdout.putstring["Ordinary: nodeDown. 1" || "\n"]
+					(locate self)$stdout.putstring["Ordinary: nodeDown." || "\n"]
 					replicas <- myReplicaObject.getReplicas
-					(locate self)$stdout.putstring["Ordinary: nodeDown. 2" || "\n"]
 					replicas[0].ping
 			
 					unavailable
@@ -67,8 +63,7 @@ const ordinaryEventHandler <- class ordinaryEventHandler[myReplicaObject : repli
 						end if 			
 					end unavailable
 					failure
-						(locate self)$stdout.putstring["Ordinary Failure: 4. ID: "||id.asString ||"\n"]
+						(locate self)$stdout.putstring["Ordinary Failure. ID: "||id.asString ||"\n"]
 					end failure
 				end nodeDown
-	
 			end ordinaryEventHandler
