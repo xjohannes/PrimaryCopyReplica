@@ -1,6 +1,6 @@
 export OridnaryConstructor
 
-const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNodes : Array.of[Node]
+const OridnaryConstructor <- class oridnaryConstructor[id : Integer, AN : Array.of[Node]
 					, reps : Array.of[replicaType], N : Integer, PrimConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType]
 			attached var availableNodes : Array.of[node]
@@ -49,7 +49,7 @@ const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNo
 			export operation update[primary : replicaType]
 				(locate self)$stdout.putstring["Ordinary update. \n"]
 				if myEventHandler == nil then 
-					myEventHandler <- ordinaryEventHandler.create[self, id, N, PrimConstructor]
+					myEventHandler <- ordinaryEventHandler.create[self, id, N]
 					(locate self)$stdout.putstring["Ordinary update. Setting eventListener" || "\n"]
 					(locate self).setNodeEventHandler[myEventHandler]
 				end if

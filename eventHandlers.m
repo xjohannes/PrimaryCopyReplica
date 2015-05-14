@@ -2,7 +2,7 @@ export primaryEventHandler
 export ordinaryEventHandler
 
 const primaryEventHandler <- class primaryEventHandler[myReplicaObject : replicaType, id : Integer
-							, N : Integer, PrimConstructor : ConstructorType]
+							, N : Integer]
 				var replicas : Array.of[replicaType]
 				var availableNodes : Array.of[node]
 
@@ -35,7 +35,7 @@ const primaryEventHandler <- class primaryEventHandler[myReplicaObject : replica
 			end primaryEventHandler
 
 const ordinaryEventHandler <- class ordinaryEventHandler[myReplicaObject : replicaType, id : Integer
-							, N : Integer, PrimConstructor : ConstructorType]
+							, N : Integer]
 
 				var replicas : Array.of[replicaType]
 				var availableNodes : Array.of[node]

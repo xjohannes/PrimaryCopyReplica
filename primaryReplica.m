@@ -1,9 +1,10 @@
 
 export PrimaryConstructor
 
-const PrimaryConstructor <- class primaryConstructor[id : Integer, availableNodes : Array.of[Node]
+const PrimaryConstructor <- class primaryConstructor[id : Integer, AN : Array.of[Node]
 						, reps : Array.of[replicaType], N : Integer, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType] 
+			attached var availableNodes : Array.of[node] 
 			var lock : boolean <- false
 			var init : boolean <- false
 			%var me : replicaType <- self
@@ -163,7 +164,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, availableNode
 				end if
 				if init == false then 
 					self.notify[self]
-					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N, OrdinConstructor]]
+					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N]]
 					init <- true
 				end if
 				(locate self)$stdout.putstring["Primary setModifiedArrays. 3" 
