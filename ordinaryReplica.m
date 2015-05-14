@@ -1,6 +1,6 @@
-export OridnaryConstructor
+export OrdinaryConstructor
 
-const OridnaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer, PrimConstructor : ConstructorType]
+const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType]
 			attached var availableNodes : Array.of[node]
 			var myEventHandler : EventHandlerType <- nil
@@ -95,7 +95,7 @@ const OridnaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			end removeUnavailableReplica
 
 			export operation maintainReplicas
-				replicas[0] <- PrimConstructor.create[0, N, PrimConstructor]
+				replicas[0] <- PrimeConstructor.create[0, N, PrimeConstructor, OrdinConstructor]
 				replicas[0].setModifiedArrays[replicas, availableNodes]
 				if availableNodes !== nil & availableNodes.upperbound > -1 then 
 					fix replicas[replicas.upperbound] at availableNodes.removeUpper

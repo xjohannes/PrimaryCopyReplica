@@ -1,7 +1,7 @@
 
 export PrimaryConstructor
 
-const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, OrdinConstructor : ConstructorType]
+const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType] 
 			attached var availableNodes : Array.of[node] 
 			var lock : boolean <- false
@@ -131,7 +131,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				||" ** repl upperbound:"||(replicas.upperbound).asString ||". availableNodes upperbound: "
 				||(availableNodes.upperbound).asString|| "\n"]
 					if availableNodes.upperbound >= 0  then
-						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1), N, OrdinConstructor]]
+						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
 						(locate self)$stdout.putstring["Primary maintainReplicas. ME: "
 						|| (locate self)$LNN.asString || ", new node: "
 						|| availableNodes[availableNodes.upperbound]$LNN.asString||"\n"]
@@ -149,17 +149,13 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			end maintainReplicas	
 
 			export operation setModifiedArrays[reps : Array.of[replicaType], availableN : Array.of[node]]
-				if reps !== nil then
+				(locate self)$stdout.putstring["Primary setModifiedArrays." || "\n"]
 					replicas <- reps
-					(locate self)$stdout.putstring["Primary setModifiedArrays.1.2" 
-				||" ** replicas.upperbound:"||(replicas.upperbound).asString || "\n"]
-				end if	
-				if availableN !== nil then
 					availableNodes <- availableN
 					(locate self)$stdout.putstring["Primary setModifiedArrays. 2.2" 
 				||" ** replicas.upperbound:"||(replicas.upperbound).asString ||". availableNodes.upperbound: "
 				||(availableNodes.upperbound).asString|| "\n"]
-				end if
+				
 				if init == false then 
 					self.notify[self]
 					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N]]
