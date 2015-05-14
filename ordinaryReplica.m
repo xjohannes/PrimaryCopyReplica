@@ -1,11 +1,11 @@
 export OridnaryConstructor
 
-const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNodes : Array.of[Node]
-					, reps : Array.of[replicaType], N : Integer, PrimConstructor : ConstructorType]
+const OridnaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer, PrimaryConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType]
+			attached var availableNodes : Array.of[node]
 			var myEventHandler : EventHandlerType <- nil
 			var lock : boolean <- false
-			var me : replicaType <- self
+			var init : boolean <- false
 			%%%%%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%%%%%%%%%%%%
 			
 			%%%%%%%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%%%%%%%%
@@ -18,7 +18,11 @@ const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNo
 			end getN
 
 			export operation getAvailableNodes -> [res : Array.of[node]]
+				(locate self)$stdout.putstring["Ordinary getAvailableNodes.Before: AvailableN.upperbound:"
+				|| availableNodes.upperbound.asString || "\n"]
 				res <- availableNodes
+				(locate self)$stdout.putstring["Ordinary getAvailableNodes. After: AvailableN.upperbound:"
+				|| availableNodes.upperbound.asString || "\n"]
 			end getAvailableNodes
 
 			export operation setAvailableNode[newAvailableNode : Node]
@@ -43,11 +47,19 @@ const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNo
 
 			export operation update[primary : replicaType]
 				(locate self)$stdout.putstring["Ordinary update. \n"]
-				replicas <- primary.getReplicas
 				if myEventHandler == nil then 
-					myEventHandler <- ordinaryEventHandler.create[self, id, N, PrimConstructor]
+					myEventHandler <- ordinaryEventHandler.create[self, id, N]
+					(locate self)$stdout.putstring["Ordinary update. Setting eventListener" || "\n"]
 					(locate self).setNodeEventHandler[myEventHandler]
 				end if
+				
+				replicas <- primary.getReplicas
+				(locate self)$stdout.putstring["Ordinary update. Replicas.upperbound: "
+					|| replicas.upperbound.asString || "\n"]
+				availableNodes <- primary.getAvailableNodes
+				(locate self)$stdout.putstring["Ordinary update. availableNodes.upperbound: "
+					|| availableNodes.upperbound.asString || "\n"]
+				init <- true
 				
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
@@ -83,7 +95,7 @@ const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNo
 			end removeUnavailableReplica
 
 			export operation maintainReplicas
-				replicas[0] <- PrimConstructor.create[0, availableNodes, replicas, N, PrimConstructor]
+				replicas[0] <- PrimaryConstructor.create[0, N, OridnaryConstructor]
 				replicas[0].setModifiedArrays[replicas, availableNodes]
 				if availableNodes !== nil & availableNodes.upperbound > -1 then 
 					fix replicas[replicas.upperbound] at availableNodes.removeUpper
@@ -112,21 +124,30 @@ const OridnaryConstructor <- class oridnaryConstructor[id : Integer, availableNo
 			end setModifiedArrays	
 
 			process
+				loop
+					exit when init == true 
+					begin
+						(locate self)$stdout.putstring["Ordinary process init" || "\n"]
+						(locate self).delay[Time.create[1, 0]]
+					end
+				end loop
+				
 				var i : Integer <- 0
 				loop
 					exit when i >= 240 
 					begin
-						(locate self)$stdout.putstring["Ordinary processloop. N: " 
-							||N.asString|| " () " || availableNodes.upperbound.asString|| "\n"]
+						(locate self)$stdout.putstring["Ordinary processloop. AvailableNodes.upperbound: " 
+							|| availableNodes.upperbound.asString|| ". Replicas.upperbound: "
+							|| replicas.upperbound.asString ||"\n"]
 						(locate self).delay[Time.create[2, 0]]
-						self.ping
+						%self.ping
 					end
 				end loop
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
 				end unavailable
 				failure
-					(locate self)$stdout.putstring["Ordinary Failure: 4. Process." ||"\n"]
+					(locate self)$stdout.putstring["Ordinary Failure:. Process." ||"\n"]
 				end failure
 			end process
 
