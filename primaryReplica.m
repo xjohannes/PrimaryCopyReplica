@@ -14,23 +14,20 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			end getId
 
 			export operation getAvailableNodes -> [res : Array.of[node]]
-				(locate self)$stdout.putstring["Primary getAvailableNodes.Before: AvailableN.upperbound:"
-				|| availableNodes.upperbound.asString || "\n"]
 				res <- availableNodes
-				(locate self)$stdout.putstring["Primary getAvailableNodes. After: AvailableN.upperbound:"
-				|| availableNodes.upperbound.asString || "\n"]
 			end getAvailableNodes
 
-			export operation setAvailableNode[newAvailableNode : Node]
-				(locate self)$stdout.putstring["Primary setAvailableNode1. AvailableN.upperbound:"
+			export operation addAvailableNode[newAvailableNode : Node]
+				(locate self)$stdout.putstring["Primary addAvailableNode1. AvailableN.upperbound:"
 				|| availableNodes.upperbound.asString || "\n"]
 				availableNodes.addUpper[newAvailableNode]
-				(locate self)$stdout.putstring["Primary setAvailableNode2. AvailableN.upperbound:"
+				self.notify[self]
+				(locate self)$stdout.putstring["Primary addAvailableNode2. AvailableN.upperbound:"
 				|| availableNodes.upperbound.asString || "\n"]
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
 				end unavailable
-			end setAvailableNode
+			end addAvailableNode
 
 			export operation getReplicas -> [res : Array.of[replicaType]]
 				res <- replicas
@@ -84,13 +81,13 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			end register
 
 			operation notify
-				for i : Integer <- 0 while i <= replicas.upperbound by i <- i + 1
+				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update
 				end for
 			end notify
 
 			operation notify[primary : replicaType]
-				for i : Integer <- 0 while i <= replicas.upperbound by i <- i + 1
+				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update[primary]
 				end for
 			end notify
@@ -136,6 +133,8 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 						|| (locate self)$LNN.asString || ", new node: "
 						|| availableNodes[availableNodes.upperbound]$LNN.asString||"\n"]
 						fix replicas[replicas.upperbound] at availableNodes[availableNodes.upperbound]
+						(locate self)$stdout.putstring["Primary maintainReplicas. availableNodes.upperbound before remove : "
+						|| availableNodes.upperbound.asString||"\n"]
 						var throw : node <- availableNodes.removeUpper
 						(locate self)$stdout.putstring["Primary maintainReplicas. availableNodes.upperbound after remove : "
 						|| availableNodes.upperbound.asString||"\n"]
@@ -152,8 +151,8 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				(locate self)$stdout.putstring["Primary setModifiedArrays." || "\n"]
 					replicas <- reps
 					availableNodes <- availableN
-					(locate self)$stdout.putstring["Primary setModifiedArrays. 2.2" 
-				||" ** replicas.upperbound:"||(replicas.upperbound).asString ||". availableNodes.upperbound: "
+					(locate self)$stdout.putstring["Primary setModifiedArrays." 
+				||" replicas.upperbound:"||(replicas.upperbound).asString ||". availableNodes.upperbound: "
 				||(availableNodes.upperbound).asString|| "\n"]
 				
 				if init == false then 
@@ -179,9 +178,9 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				loop
 					exit when stopProcess == true 
 					begin
-						(locate self)$stdout.putstring["Primary processloop. AvailableNodes.upperbound: " 
-						|| availableNodes.upperbound.asString || ". Replicas.upperbound: "
-							|| replicas.upperbound.asString ||"\n"]
+						(locate self)$stdout.putstring["Primary processloop. LNN: " ||(locate self)$LNN.asString
+						||"\n AvailableNodes.upperbound: " || availableNodes.upperbound.asString 
+						|| ". Replicas.upperbound: " || replicas.upperbound.asString ||"\n"]
 						(locate self).delay[Time.create[2, 0]]
 						%self.ping
 						%self.maintainReplicas

@@ -19,19 +19,22 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 
 			export operation getAvailableNodes -> [res : Array.of[node]]
 				(locate self)$stdout.putstring["Ordinary getAvailableNodes.Before: AvailableN.upperbound:"
-				|| availableNodes.upperbound.asString || "\n"]
+					|| availableNodes.upperbound.asString || "\n"]
 				res <- availableNodes
 				(locate self)$stdout.putstring["Ordinary getAvailableNodes. After: AvailableN.upperbound:"
-				|| availableNodes.upperbound.asString || "\n"]
+					|| availableNodes.upperbound.asString || "\n"]
 			end getAvailableNodes
 
-			export operation setAvailableNode[newAvailableNode : Node]
+			export operation addAvailableNode[newAvailableNode : Node]
+				(locate self)$stdout.putstring["Ordinary addAvailableNode. AN.upper: "
+					||availableNodes.upperbound.asString || "\n"]
 				availableNodes.addUpper[newAvailableNode]
-				(locate self)$stdout.putstring["Ordinary setAvailableNode." || "\n"]
+				(locate self)$stdout.putstring["Ordinary addAvailableNode. AN.upper: "
+					||availableNodes.upperbound.asString || "\n"]
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
 				end unavailable
-			end setAvailableNode
+			end addAvailableNode
 
 			export operation getReplicas -> [res : Array.of[replicaType]]
 				res <- replicas
@@ -136,7 +139,8 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				loop
 					exit when i >= 240 
 					begin
-						(locate self)$stdout.putstring["Ordinary processloop. AvailableNodes.upperbound: " 
+						(locate self)$stdout.putstring["Ordinary processloop. LNN: "||(locate self)$LNN.asString
+						||"\n AvailableNodes.upperbound: " || availableNodes.upperbound.asString ||" AvailableNodes.upperbound: " 
 							|| availableNodes.upperbound.asString|| ". Replicas.upperbound: "
 							|| replicas.upperbound.asString ||"\n"]
 						(locate self).delay[Time.create[2, 0]]

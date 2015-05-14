@@ -13,7 +13,7 @@ const ReplicaType <- typeObject replicaType
 	op getId -> [replicaId : Integer]
 	op getN -> [requiredReplicas : Integer]
 	op getAvailableNodes -> [availableNodes : Array.of[node]]
-	op setAvailableNode[newAvailableNode : Node]
+	op addAvailableNode[newAvailableNode : Node]
 	op getReplicas -> [replicas : Array.of[replicaType]]
 
 	op update

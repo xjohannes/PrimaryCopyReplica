@@ -7,8 +7,8 @@ const primaryEventHandler <- class primaryEventHandler[myReplicaObject : replica
 				var availableNodes : Array.of[node]
 
 				export operation nodeUp[nodeUp : node, t : Time]
-					(locate self)$stdout.putstring["Primary NodeUp:" ||"\n"]
-					myReplicaObject.setAvailableNode[nodeUp]
+					(locate self)$stdout.putstring["Primary NodeUp: LNN: "||nodeUp$LNN.asString ||"\n"]
+					myReplicaObject.addAvailableNode[nodeUp]
 					myReplicaObject.maintainReplicas
 
 					unavailable
@@ -42,12 +42,12 @@ const ordinaryEventHandler <- class ordinaryEventHandler[myReplicaObject : repli
 
 				export operation nodeUp[nodeUp : node, t : Time]
 					(locate self)$stdout.putstring["Ordinary NodeUp:" ||"\n"]
-					availableNodes <- myReplicaObject.getAvailableNodes
 					myReplicaObject.ping
-					(locate self)$stdout.putstring["Ordinary: nodeUp . Adding. availableNodes.upperbound before: "||availableNodes.upperbound.asString || "\n"]
-					availableNodes.addUpper[nodeUp]
-					(locate self)$stdout.putstring["Ordinary: nodeUp . Adding. availableNodes.upperbound after: "||availableNodes.upperbound.asString || "\n"]
+					
 					unavailable
+						if id == 1 then 
+							myReplicaObject.addAvailableNode[nodeUp]
+						end if
 						(locate self)$stdout.putstring["Ordinary: nodeUp . Unavailable " || "\n"]
 					end unavailable
 				end nodeUp
