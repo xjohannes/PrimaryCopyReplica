@@ -6,8 +6,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			attached var availableNodes : Array.of[node] 
 			var lock : boolean <- false
 			var init : boolean <- false
-			%var me : replicaType <- self
-			var stopProcess : boolean <- false
+			var kill : boolean <- false
 
 			export operation getId -> [repId : Integer]
 				repId <- id
@@ -16,6 +15,14 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			export operation getAvailableNodes -> [res : Array.of[node]]
 				res <- availableNodes
 			end getAvailableNodes
+
+			export operation getReplicas -> [res : Array.of[replicaType]]
+				res <- replicas
+			end getReplicas
+
+			export operation getN -> [requiredReplicas : Integer]
+				requiredReplicas <- N
+			end getN
 
 			export operation addAvailableNode[newAvailableNode : Node]
 				availableNodes.addUpper[newAvailableNode]
@@ -26,13 +33,9 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				end unavailable
 			end addAvailableNode
 
-			export operation getReplicas -> [res : Array.of[replicaType]]
-				res <- replicas
-			end getReplicas
-
-			export operation getN -> [requiredReplicas : Integer]
-				requiredReplicas <- N
-			end getN
+			export operation killProcess
+				kill <- true
+			end killProcess
 
 			export operation update
 				(locate self)$stdout.putstring["Primary update. \n"]
@@ -85,32 +88,33 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 
 			operation notify[primary : replicaType]
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
+					(locate self)$stdout.putstring["Primary notify. Replicas: " 
+				||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 					replicas[i].update[primary]
 				end for
+				(locate self)$stdout.putstring["Primary notify. Replicas: " 
+				||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 			end notify
 
 			export operation removeUnavailableReplica
 				var i : Integer <- 0
-				(locate self)$stdout.putstring["Primary Degugg 1." || "\n"]
 				loop
-					(locate self)$stdout.putstring["Primary Degugg 2." || "\n"]
 					exit when i > replicas.upperbound 
-					(locate self)$stdout.putstring["Primary Degugg 3." || "\n"]
 					begin
-						(locate self)$stdout.putstring["Primary removeUnavailableReplica: i: "
-						||i.asString || "\n"]
 						replicas[i].ping
 						i <- i + 1
 					end
 				end loop
 
 				unavailable
-					(locate self)$stdout.putstring["Primary removeUnavailableReplica unavailable." || "\n"]
+					
 					if i !== replicas.upperbound then
 						replicas[i] <- replicas.removeUpper
 					else
 						var throw : replicaType <- replicas.removeUpper
 					end if
+					(locate self)$stdout.putstring["Primary removeUnavailableReplica. Replicas : "
+						||replicas.upperbound.asString || "\n"]
 				end unavailable
 			end removeUnavailableReplica
 
@@ -118,7 +122,11 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				if (replicas.upperbound + 1) < N then
 					if availableNodes.upperbound >= 0  then
 						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
+						(locate self)$stdout.putstring["Primary maintainReplicas. Created a Replica. Replicas : "
+						||replicas.upperbound.asString || "\n"]
 						fix replicas[replicas.upperbound] at availableNodes[availableNodes.upperbound]
+						(locate self)$stdout.putstring["Primary maintainReplicas. Moved replica to " 
+						|| availableNodes[availableNodes.upperbound]$LNN.asString || "\n"]
 						var throw : node <- availableNodes.removeUpper
 						self.notify[self]
 					else
@@ -129,12 +137,12 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				end if
 			end maintainReplicas
 
-			export operation initializeDataStructures[reps : Array.of[replicaType], availableN : Array.of[node]]
-				(locate self)$stdout.putstring["Primary setModifiedArrays." || "\n"]
-					
+			export operation initializeDataStructures[reps : Array.of[replicaType], availableN : Array.of[node]]	
 				self.initReplicas[reps]
 				self.initAvailableNodes[availableN]
-				
+				(locate self)$stdout.putstring["Primary initializeDataStructures."||"\n"] 
+				(locate self)$stdout.putstring["\tReplicas: " ||replicas.upperbound.asString 
+					|| ". AvailableNodes: " || availableNodes.upperbound.asString||"\n\n"]
 				if init == false then 
 					self.notify[self]
 					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N]]
@@ -143,9 +151,12 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			end initializeDataStructures
 
 			operation initReplicas[reps : Array.of[replicaType]]
-				replicas <- Array.of[replicaType].create[(reps.upperbound + 1)]
+				replicas <- Array.of[replicaType].create[0]
 				for i : Integer <- 0 while i <= reps.upperbound by i <- i + 1
-					replicas[i] <- reps[i]
+					if reps[i] !== nil then 
+						replicas.addUpper[reps[i]]
+					(locate self)$stdout.putstring["Primary initializing replicas."||"\n"] 
+					end if	
 				end for
 			end	initReplicas
 
@@ -153,6 +164,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				availableNodes <- Array.of[node].create[(availableN.upperbound + 1)]
 				for i : Integer <- 0 while i <= availableN.upperbound by i <- i + 1
 					availableNodes[i] <- availableN[i]
+					(locate self)$stdout.putstring["Primary initializeing availables."||"\n"] 
 				end for
 			end	initAvailableNodes
 
@@ -160,17 +172,20 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				loop
 					exit when init == true 
 					begin
-						(locate self)$stdout.putstring["Primary process init" || "\n"]
+						init <- false
+						(locate self)$stdout.putstring["Primary process init "||(locate self)$LNN.asString
+						 || "\n"]
 						(locate self).delay[Time.create[1, 0]]
 					end
 				end loop
 				var i : Integer <- 0
 				loop
-					exit when stopProcess == true 
+					exit when kill == true 
 					begin
-						(locate self)$stdout.putstring["Primary processloop. LNN: " ||(locate self)$LNN.asString
-						||"\n AvailableNodes.upperbound: " || availableNodes.upperbound.asString 
-						|| ". Replicas.upperbound: " || replicas.upperbound.asString ||"\n"]
+						kill <- false
+						%(locate self)$stdout.putstring["\nPrimary processloop. LNN: " ||(locate self)$LNN.asString||"\n"]
+						%(locate self)$stdout.putstring["\n\tAvailableNodes.upperbound: " || availableNodes.upperbound.asString 
+						%|| ". Replicas.upperbound: " || replicas.upperbound.asString ||"\n"]
 						(locate self).delay[Time.create[2, 0]]
 						%self.ping
 						%self.maintainReplicas

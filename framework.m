@@ -4,39 +4,42 @@ export framework
 const framework <- object framework
 	const home <- (locate self)
 	var activeNodes : NodeList <- home$activeNodes
-	var replicas : Array.of[replicaType] <- Array.of[replicaType].create[0]
+	var replicas : Array.of[replicaType] 
 	var availableNodes : Array.of[Node] <- Array.of[Node].create[0]
-	var replicasUpperbound : Integer <- 0
+	var replicasUpperbound : Integer <- 1
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
-		if home.getActiveNodes.upperbound >= 2 then 
-			replicas.addUpper[PrimaryConstructor.create[0, N, PrimaryConstructor, OrdinaryConstructor]]
-			fix replicas[replicasUpperbound] at home$activeNodes[1]$theNode
-			replicasUpperbound <- replicasUpperbound + 1
-			for i : Integer <- home.getActiveNodes.upperbound while i > 1  by i <- i - 1
-				
-				if i > N then 
-					availableNodes.addUpper[home$activeNodes[i]$theNode]
-				else
-					replicas.addUpper[OrdinaryConstructor.create[replicasUpperbound, N, PrimaryConstructor, OrdinaryConstructor]]
-					fix replicas[replicasUpperbound] at home$activeNodes[i]$theNode
-					replicasUpperbound <- replicasUpperbound + 1
-				end if
-			end for
-			replicas[0].initializeDataStructures[replicas, availableNodes]
+		replicas <- Array.of[replicaType].create[(N -1)]
+		(locate self)$stdout.putstring["ReplicateMe. replicas upper: "|| replicas.upperbound.asString ||"\n"]
+		loop
+			exit when home.getActiveNodes.upperbound > 0 
+			begin
+				home$stdout.putstring["There has to be at least 2 active nodes available to start the Primary Copy Replica Framework. " 
+					||"Please open more nodes."|| "\n"]
+				(locate self).delay[Time.create[2, 0]]
+			end
+		end loop
 
-			if N > (replicasUpperbound) then 
-				home$stdout.putstring["Framework: There is not enough active nodes available to create N replicas. "
-				|| "Could only create  " || replicasUpperbound.asString || "replicas. "|| "\n"]
+		for i : Integer <- 1 while i < home.getActiveNodes.upperbound by i <- i + 1
+			if i < N then 
+				replicas[i] <- OrdinaryConstructor.create[i, N, PrimaryConstructor, OrdinaryConstructor]
+				%replicas.addUpper[OrdinaryConstructor.create[replicasUpperbound, N, PrimaryConstructor, OrdinaryConstructor]]
+				fix replicas[i] at home$activeNodes[i]$theNode
+				%replicasUpperbound <- replicasUpperbound + 1
+			else
+				(locate self)$stdout.putstring["ReplicateMe. Adding availableNodes." ||"\n"]
+				availableNodes.addUpper[home$activeNodes[i]$theNode]
 			end if
-
-		else
-			home$stdout.putstring["There has to be at least 3 active nodes available at this time. " || "\n"]
-		end if	
+		end for
+		%replicas.addUpper[replicas[0]]
+		replicas[0] <- PrimaryConstructor.create[0, N, PrimaryConstructor, OrdinaryConstructor]
+		fix replicas[0] at home$activeNodes[1]$theNode
+		replicas[0].initializeDataStructures[replicas, availableNodes]
 
 		unavailable
 			(locate self)$stdout.putstring["Framework: replacateMe. Unavailable " || "\n"]
 		end unavailable
+
 	end replicateMe
 
 	export operation getAvailableNodes -> [res : Array.of[Node]]
@@ -53,12 +56,12 @@ const framework <- object framework
 			(locate self)$stdout.putstring["Framework: Process Unavailable " || "\n"]
 		end unavailable
 		failure
-			(locate self)$stdout.putstring["Framework Failure: 4. Process." ||"\n"]
+			(locate self)$stdout.putstring["Framework Failure: Process." ||"\n"]
 		end failure
 	end process
 
 	initially
-		
+
 		unavailable
 			(locate self)$stdout.putstring["Framework: initially. Unavailable " || "\n"]
 		end unavailable

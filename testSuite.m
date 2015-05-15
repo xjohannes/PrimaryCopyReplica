@@ -7,12 +7,10 @@ const testSuite <- object testSuite
 	process
 		%(locate self).delay[Time.create[2,0]]
 		var testRep : ClonableType <- nameServerConstructor.create
-		serverInterfaces <- framework.replicateMe[testRep, 3]
+		serverInterfaces <- framework.replicateMe[testRep, 4]
 		unavailable
 			(locate self)$stdout.putstring["TestSuit Prosess. Unavailable " || "\n"]
 		end unavailable
-		failure
-			(locate self)$stdout.putstring["TestSuite Failure: 4. Process." ||"\n"]
-		end failure
+		
 	end process
 end testSuite

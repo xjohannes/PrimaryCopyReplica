@@ -6,12 +6,17 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			var myEventHandler : EventHandlerType <- nil
 			var lock : boolean <- false
 			var init : boolean <- false
+			var kill : boolean <- false
 			%%%%%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%%%%%%%%%%%%
 			
 			%%%%%%%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%%%%%%%%
 			export operation getId -> [repId : Integer]
 				repId <- id
 			end getId
+
+			export operation setId[newId : Integer]
+				id <- newId
+			end setId
 
 			export operation getN -> [requiredReplicas : Integer]
 				requiredReplicas <- N
@@ -21,8 +26,11 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				res <- availableNodes
 			end getAvailableNodes
 
+			export operation getReplicas -> [res : Array.of[replicaType]]
+				res <- replicas
+			end getReplicas
+
 			export operation addAvailableNode[newAvailableNode : Node]
-				
 				availableNodes.addUpper[newAvailableNode]
 				(locate self)$stdout.putstring["Ordinary addAvailableNode. AvailableNodes.upper: "
 					||availableNodes.upperbound.asString || "\n"]
@@ -32,9 +40,11 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				end unavailable
 			end addAvailableNode
 
-			export operation getReplicas -> [res : Array.of[replicaType]]
-				res <- replicas
-			end getReplicas
+			export operation killProcess
+				(locate self).removeNodeEventHandler[myEventHandler]
+				(locate self)$stdout.putstring["Ordinary killProcess." || "\n"]
+				kill <- true
+			end killProcess
 
 			export operation update
 				(locate self)$stdout.putstring["Ordinary update. \n"]
@@ -45,7 +55,7 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			end update
 
 			export operation update[primary : replicaType]
-				(locate self)$stdout.putstring["Ordinary update. \n"]
+				(locate self)$stdout.putstring["Ordinary update[primary]. \n"]
 				if myEventHandler == nil then 
 					myEventHandler <- ordinaryEventHandler.create[self, id, N]
 					(locate self)$stdout.putstring["Ordinary update. Setting eventListener" || "\n"]
@@ -53,11 +63,11 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				end if
 				
 				replicas <- primary.getReplicas
-				(locate self)$stdout.putstring["Ordinary update. Replicas.upperbound: "
-					|| replicas.upperbound.asString || "\n"]
 				availableNodes <- primary.getAvailableNodes
-				(locate self)$stdout.putstring["Ordinary update. availableNodes.upperbound: "
-					|| availableNodes.upperbound.asString || "\n"]
+				self.initializeDataStructures[replicas, availableNodes]
+				(locate self)$stdout.putstring["Ordinary update[primary]. Replicas: "
+					|| replicas.upperbound.asString || ", availableNodes: "
+					|| availableNodes.upperbound.asString ||"\n"]
 				init <- true
 				
 				unavailable
@@ -75,7 +85,7 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			export operation getData -> [newData : Any]
 				(locate self)$stdout.putstring["ordinary getData." || "\n"]
 				unavailable
-					(locate self)$stdout.putstring["abstractReplica getData. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["ordinary getData. Unavailable" || "\n"]
 				end unavailable
 			end getData
 	
@@ -94,13 +104,22 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			end removeUnavailableReplica
 
 			export operation maintainReplicas
+				(locate self)$stdout.putstring["Ordinary maintainReplicas. Creating new Primary." || "\n"]
 				replicas[0] <- PrimeConstructor.create[0, N, PrimeConstructor, OrdinConstructor]
 				replicas[0].initializeDataStructures[replicas, availableNodes]
-				if availableNodes !== nil & availableNodes.upperbound > -1 then 
-					fix replicas[replicas.upperbound] at availableNodes.removeUpper
+				if availableNodes.upperbound >= 0 then 
+					(locate self)$stdout.putstring["Ordinary maintainReplicas. moving new Primary: "
+			 || "\n"]
+			 		var tmpNode : node <- availableNodes.removeUpper
+
+					fix replicas[replicas.upperbound] at tmpNode
+					(locate self)$stdout.putstring["Ordinary maintainReplicas. Moved Primary: "
+			 		||tmpNode$LNN.asString|| "\n"]
 				else
 					var throw : replicaType <- replicas.removeUpper
+					self.killProcess
 					throw <- nil
+
 					(locate self)$stdout.putstring["There is not enought active nodes to maintain "|| N.asString 
 					|| " replicas. Please open more nodes." ||"\n"]	
 				end if
@@ -120,6 +139,7 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 			export operation initializeDataStructures[reps : Array.of[replicaType], availableN : Array.of[node]]
 				self.initReplicas[reps]
 				self.initAvailableNodes[availableN]
+				(locate self)$stdout.putstring["Ordinary initializeDataStructures." || "\n"]
 			end initializeDataStructures
 
 			operation initReplicas[reps : Array.of[replicaType]]
@@ -140,19 +160,21 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				loop
 					exit when init == true 
 					begin
-						(locate self)$stdout.putstring["Ordinary process init" || "\n"]
+						init <- false
+						(locate self)$stdout.putstring["Ordinary process init " ||(locate self)$LNN.asString
+						|| "\n"]
 						(locate self).delay[Time.create[1, 0]]
 					end
 				end loop
 				
-				var i : Integer <- 0
 				loop
-					exit when i >= 240 
+					exit when kill == true 
 					begin
-						(locate self)$stdout.putstring["Ordinary processloop. LNN: "||(locate self)$LNN.asString
-						||"\n AvailableNodes.upperbound: " || availableNodes.upperbound.asString ||" AvailableNodes.upperbound: " 
-							|| availableNodes.upperbound.asString|| ". Replicas.upperbound: "
-							|| replicas.upperbound.asString ||"\n"]
+						kill <- false 
+						%(locate self)$stdout.putstring["\nOrdinary processloop. LNN: "||(locate self)$LNN.asString||"\n"]
+						%(locate self)$stdout.putstring["\n\t AvailableNodes.upperbound: " || availableNodes.upperbound.asString ||" AvailableNodes.upperbound: " 
+							%|| availableNodes.upperbound.asString|| ". Replicas.upperbound: "
+							%|| replicas.upperbound.asString ||"\n"]
 						(locate self).delay[Time.create[2, 0]]
 						%self.ping
 					end

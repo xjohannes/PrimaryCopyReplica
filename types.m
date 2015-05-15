@@ -6,7 +6,8 @@ export ClonableType
 export ConstructorType
 
 const FrameworkType <- typeObject frameworkType 
-	op replicateMe[X : ReplicaType, N : Integer] -> [proxy : ReplicaType]
+	op replicateMe
+	op replicateMe[X : ClonableType, N : Integer] -> [proxy : ReplicaType]
 end frameworkType
 
 const ReplicaType <- typeObject replicaType
@@ -15,7 +16,7 @@ const ReplicaType <- typeObject replicaType
 	op getAvailableNodes -> [availableNodes : Array.of[node]]
 	op addAvailableNode[newAvailableNode : Node]
 	op getReplicas -> [replicas : Array.of[replicaType]]
-
+	op killProcess
 	op update
 	op update[primary : replicaType]
 	op setData[newData : Any, upn : Integer]
