@@ -3,10 +3,8 @@ export framework
 
 const framework <- object framework
 	const home <- (locate self)
-	var activeNodes : NodeList <- home$activeNodes
 	var replicas : Array.of[replicaType] 
 	var availableNodes : Array.of[Node] <- Array.of[Node].create[0]
-	var replicasUpperbound : Integer <- 1
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[replicaType]]
 		replicas <- Array.of[replicaType].create[(N -1)]
@@ -23,15 +21,12 @@ const framework <- object framework
 		for i : Integer <- 1 while i < home.getActiveNodes.upperbound by i <- i + 1
 			if i < N then 
 				replicas[i] <- OrdinaryConstructor.create[i, N, PrimaryConstructor, OrdinaryConstructor]
-				%replicas.addUpper[OrdinaryConstructor.create[replicasUpperbound, N, PrimaryConstructor, OrdinaryConstructor]]
 				fix replicas[i] at home$activeNodes[i]$theNode
-				%replicasUpperbound <- replicasUpperbound + 1
 			else
 				(locate self)$stdout.putstring["ReplicateMe. Adding availableNodes." ||"\n"]
 				availableNodes.addUpper[home$activeNodes[i]$theNode]
 			end if
 		end for
-		%replicas.addUpper[replicas[0]]
 		replicas[0] <- PrimaryConstructor.create[0, N, PrimaryConstructor, OrdinaryConstructor]
 		fix replicas[0] at home$activeNodes[1]$theNode
 		replicas[0].initializeDataStructures[replicas, availableNodes]
@@ -39,7 +34,6 @@ const framework <- object framework
 		unavailable
 			(locate self)$stdout.putstring["Framework: replacateMe. Unavailable " || "\n"]
 		end unavailable
-
 	end replicateMe
 
 	export operation getAvailableNodes -> [res : Array.of[Node]]

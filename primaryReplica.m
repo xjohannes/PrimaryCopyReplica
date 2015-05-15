@@ -183,6 +183,9 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 					exit when kill == true 
 					begin
 						kill <- false
+						if replicas.upperbound < (N - 1) then 
+							(locate self)$stdout.putstring["\nPrimary processloop. Active nodes: "|| (replicas.upperbound + 1).asString|| " - Required nodes: "  ||N.asString||" nodes. "||"\n"]
+						end if
 						%(locate self)$stdout.putstring["\nPrimary processloop. LNN: " ||(locate self)$LNN.asString||"\n"]
 						%(locate self)$stdout.putstring["\n\tAvailableNodes.upperbound: " || availableNodes.upperbound.asString 
 						%|| ". Replicas.upperbound: " || replicas.upperbound.asString ||"\n"]
