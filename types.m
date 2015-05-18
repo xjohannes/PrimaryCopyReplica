@@ -34,7 +34,7 @@ const ClonableType <- typeObject ClonableType
 	op cloneMe -> [clone : ClonableType]
 	op setData[newData : Any]
 	op getData -> [res : Any]
-	op getData[data : Any] -> [res : Any]
+	%op getData[data : Any] -> [res : Any]
 	op print[msg : String]
 end ClonableType
 
