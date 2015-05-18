@@ -1,12 +1,14 @@
 
 export PrimaryConstructor
 
-const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
+const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType] 
 			attached var availableNodes : Array.of[node] 
+
 			var lock : boolean <- false
 			var init : boolean <- false
 			var kill : boolean <- false
+			var timeStamp : Time 
 
 			export operation getId -> [repId : Integer]
 				repId <- id
@@ -37,6 +39,10 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				kill <- true
 			end killProcess
 
+			export operation cloneMe -> [clone : ClonableType]
+				%% Dummy operation
+			end cloneMe
+
 			export operation update
 				(locate self)$stdout.putstring["Primary update. \n"]
 				unavailable
@@ -51,17 +57,38 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 				end unavailable
 			end update
 
-			export operation setData[newData : Any, upn : Integer]
-				(locate self)$stdout.putstring["Primary setData."]
+			export operation setData[newData : Any]
+				if lock == false then 
+					(locate self)$stdout.putstring["Primary setData[1]. Lockdown time: " || (locate self)$timeOfDay.asString ]
+					lock <- true
+						timeStamp <- (locate self)$timeOfDay
+						myClonable.setData[newData]
+						self.notify
+					lock <- false
+				end if
+				
+				unavailable
+					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
+				end unavailable
+			end setData
+
+			export operation setData[newData : Any, upn : Time]
+				(locate self)$stdout.putstring["Primary setData[2]."]
+				if upn > timestamp then 
+					self.setData[newData]
+				end if
+
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
 				end unavailable
 			end setData
 
 			export operation getData -> [newData : Any]
-				(locate self)$stdout.putstring["primary getData." || "\n"]
+				(locate self)$stdout.putstring["Primary getData." || "\n"]
+				newData <- myClonable.getData
+				
 				unavailable
-					(locate self)$stdout.putstring["abstractReplica getData. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["Primary getData. Unavailable" || "\n"]
 				end unavailable
 			end getData
 	
@@ -81,6 +108,7 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			end register
 
 			operation notify
+			 % spawn new objects?
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update
 				end for
@@ -121,10 +149,11 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 			export operation maintainReplicas
 				if (replicas.upperbound + 1) < N then
 					if availableNodes.upperbound >= 0  then
-						replicas.addUpper[OrdinConstructor.create[(replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
+						replicas.addUpper[OrdinConstructor.create[myClonable, (replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
 						(locate self)$stdout.putstring["Primary maintainReplicas. Created a Replica. Replicas : "
 						||replicas.upperbound.asString || "\n"]
 						fix replicas[replicas.upperbound] at availableNodes[availableNodes.upperbound]
+						fix myClonable.cloneMe at availableNodes[availableNodes.upperbound]
 						(locate self)$stdout.putstring["Primary maintainReplicas. Moved replica to " 
 						|| availableNodes[availableNodes.upperbound]$LNN.asString || "\n"]
 						var throw : node <- availableNodes.removeUpper
@@ -167,6 +196,10 @@ const PrimaryConstructor <- class primaryConstructor[id : Integer, N : Integer, 
 					(locate self)$stdout.putstring["Primary initializeing availables."||"\n"] 
 				end for
 			end	initAvailableNodes
+
+			export operation print[msg : String]
+
+			end print
 
 			process
 				loop

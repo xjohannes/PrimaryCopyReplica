@@ -11,6 +11,7 @@ const FrameworkType <- typeObject frameworkType
 end frameworkType
 
 const ReplicaType <- typeObject replicaType
+	op cloneMe -> [clone : ClonableType]
 	op getId -> [replicaId : Integer]
 	op getN -> [requiredReplicas : Integer]
 	op getAvailableNodes -> [availableNodes : Array.of[node]]
@@ -19,17 +20,21 @@ const ReplicaType <- typeObject replicaType
 	op killProcess
 	op update
 	op update[primary : replicaType]
-	op setData[newData : Any, upn : Integer]
+	op setData[newData : Any]
+	op setData[newData : Any, upn : Time]
 	op getData -> [currentState : Any]
 	op removeUnavailableReplica
 	op maintainReplicas
 	op initializeDataStructures[reps : Array.of[replicaType], an : Array.of[node]]
 	op ping
+	op print[msg : String]
 end replicaType
 
 const ClonableType <- typeObject ClonableType
 	op cloneMe -> [clone : ClonableType]
 	op setData[newData : Any]
+	op getData -> [res : Any]
+	op getData[data : Any] -> [res : Any]
 	op print[msg : String]
 end ClonableType
 
@@ -39,7 +44,7 @@ const EventHandlerType <- typeObject EventHandlerType
 end EventHandlerType
 
 const ConstructorType <- typeObject ConstructorType
-	op create[id : Integer, N : Integer, PrimaryConstructor : ConstructorType, OrdinaryConstructor : ConstructorType] -> [res : replicaType]
+	op create[clonable: ClonableType, id : Integer, N : Integer, PrimaryConstructor : ConstructorType, OrdinaryConstructor : ConstructorType] -> [res : replicaType]
 end ConstructorType
 
 const NodeElementType <- typeObject nodeElementType

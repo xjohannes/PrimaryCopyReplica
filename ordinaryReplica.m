@@ -1,15 +1,15 @@
 export OrdinaryConstructor
 
-const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
+const OrdinaryConstructor <- class oridnaryConstructor[myClonable : ClonableType, id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType]
 			attached var availableNodes : Array.of[node]
+			
 			var myEventHandler : EventHandlerType <- nil
 			var lock : boolean <- false
 			var init : boolean <- false
 			var kill : boolean <- false
-			%%%%%%%%%%%%%%%%%%%%% inner class %%%%%%%%%%%%%%%%%%%%%%%%%
+			var pending : Any <- nil
 			
-			%%%%%%%%%%%%%%%%%%%%%%% end inner class %%%%%%%%%%%%%%%%%
 			export operation getId -> [repId : Integer]
 				repId <- id
 			end getId
@@ -46,9 +46,19 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				kill <- true
 			end killProcess
 
+			export operation cloneMe -> [clone : ClonableType]
+				%% Dummy operation
+			end cloneMe
+
 			export operation update
 				(locate self)$stdout.putstring["Ordinary update. \n"]
-				
+				var newData : Any <- replicas[0].getData
+				myClonable.setData[newData]
+				if pending !== nil then
+					replicas[0].setData[pending]
+					pending <- nil
+				end if
+
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
 				end unavailable
@@ -75,8 +85,19 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 				end unavailable
 			end update
 
-			export operation setData[newData : Any, upn : Integer]
-				(locate self)$stdout.putstring["Ordinary setData."]
+			export operation setData[newData : Any]
+				(locate self)$stdout.putstring["Primary setData[1]. Calling primary update."]
+				replicas[0].setData[newData, (locate self)$timeOfDay]
+				%myClonable.setData[newData]
+
+				unavailable
+					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
+					pending <- newData
+				end unavailable
+			end setData
+
+			export operation setData[newData : Any, upn : Time]
+				(locate self)$stdout.putstring["Ordinary setData[2]."]
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
 				end unavailable
@@ -105,14 +126,14 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 
 			export operation maintainReplicas
 				(locate self)$stdout.putstring["Ordinary maintainReplicas. Creating new Primary." || "\n"]
-				replicas[0] <- PrimeConstructor.create[0, N, PrimeConstructor, OrdinConstructor]
+				replicas[0] <- PrimeConstructor.create[myClonable, 0, N, PrimeConstructor, OrdinConstructor]
 				replicas[0].initializeDataStructures[replicas, availableNodes]
 				if availableNodes.upperbound >= 0 then 
 					(locate self)$stdout.putstring["Ordinary maintainReplicas. moving new Primary: "
 			 || "\n"]
 			 		var tmpNode : node <- availableNodes.removeUpper
-
 					fix replicas[replicas.upperbound] at tmpNode
+					fix myClonable.cloneMe at tmpNode
 					(locate self)$stdout.putstring["Ordinary maintainReplicas. Moved Primary: "
 			 		||tmpNode$LNN.asString|| "\n"]
 				else
@@ -155,6 +176,10 @@ const OrdinaryConstructor <- class oridnaryConstructor[id : Integer, N : Integer
 					availableNodes[i] <- availableN[i]
 				end for
 			end	initAvailableNodes	
+
+			export operation print[msg : String]
+
+			end print
 
 			process
 				loop
