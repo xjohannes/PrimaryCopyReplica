@@ -8,7 +8,7 @@ const nameServerConstructor <- object nameServerConstructor
 		newObject <- object nameServer
 			var init : boolean <- false	
 			var keys : Array.of[String] <- Array.of[String].create[0]
-			var objects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0] 
+			attached var objects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0] 
 
 			export operation getSerial -> [res : Integer]
 				res <- serialNr
@@ -48,17 +48,28 @@ const nameServerConstructor <- object nameServerConstructor
 			end setData
 
 			export operation getData -> [res : Array.of[Any]]
+				var resultArray : Array.of[Any] <- Array.of[Any].create[0]
+				(locate self)$stdout.putstring["Debug. NameServer getData 1." ||"\n"]
 				var tmp : Any <- self.getKeys
+				(locate self)$stdout.putstring["Debug. NameServer getData 2." ||"\n"]
 				var tmpArr : Any <- view tmp as Any
-				res.addUpper[tmpArr]
+				(locate self)$stdout.putstring["Debug. NameServer getData 3." ||"\n"]
+				resultArray.addUpper[tmpArr]
+				(locate self)$stdout.putstring["Debug. NameServer getData 4." ||"\n"]
 				
 				tmp  <- self.getObjects
+				(locate self)$stdout.putstring["Debug. NameServer getData 5." ||"\n"]
 				tmpArr <- view tmp as Any
-				res.addUpper[tmpArr]
+				(locate self)$stdout.putstring["Debug. NameServer getData 6." ||"\n"]
+				resultArray.addUpper[tmpArr]
+				(locate self)$stdout.putstring["Debug. NameServer getData 7." ||"\n"]
+				res <- resultArray
 			end getData
 
 			export operation getData[key : Any] -> [res : Any]
+				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
 				res <- self.lookup[(view key as String)]
+				(locate self)$stdout.putstring["Debug. NameServer getData[1] 2." ||"\n"]
 			end getData
 
 			export operation lookup[name : String] -> [obj : FilmDataType]
@@ -73,7 +84,7 @@ const nameServerConstructor <- object nameServerConstructor
 			end lookup
 
 			export operation print[msg : String]
-				(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"] 
+				%(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"] 
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
 					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
 					objects[i].print
@@ -84,11 +95,7 @@ const nameServerConstructor <- object nameServerConstructor
 				var tmpKeys : Array.of[String] <- Array.of[String].create[0]
 				var tmpObjects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0]
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
-					(locate self)$stdout.putstring["nameServer: copyData i: "||i.asString || "\n"]
-					(locate self)$stdout.putstring["nameServer: copyData keys.upperbound: "||keys.upperbound.asString || "\n"]
 					if keys[i] !== nil then
-						(locate self)$stdout.putstring["nameServer: keys[i] !==nil: "\
-						|| "\n"]
 						tmpKeys.addUpper[keys[i]]
 						tmpObjects.addUpper[objects[i]]
 					end if
@@ -102,9 +109,11 @@ const nameServerConstructor <- object nameServerConstructor
 				loop
 					exit when init == true 
 					begin
-						(locate self)$stdout.putstring["nameServer: Prosess. Id: "|| self.getSerial.asString ]
-						(locate self)$stdout.putstring[". ParentId: " || self.getParentId.asString || "\n"]	
-						(locate self).delay[Time.create[2,0]]
+						%(locate self)$stdout.putstring["nameServer: Prosess. Id: "|| self.getSerial.asString ||"\n"]
+						self.print[""]
+						%(locate self)$stdout.putstring["Parent Id: " || self.getParentId.asString || "\n"]	
+						(locate self)$stdout.putstring[" ---\n"]	
+						(locate self).delay[Time.create[5,0]]
 					end
 				end loop
 					

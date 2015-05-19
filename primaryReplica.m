@@ -8,7 +8,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			var lock : boolean <- false
 			var init : boolean <- false
 			var kill : boolean <- false
-			var timeStamp : Time 
+			var timeStamp : Time <- (locate self)$timeOfDay
 
 			export operation getId -> [repId : Integer]
 				repId <- id
@@ -59,7 +59,8 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			export operation setData[newData : Any]
 				if lock == false then 
-					(locate self)$stdout.putstring["Primary setData[1]. Lockdown time: " || (locate self)$timeOfDay.asString || "\n"]
+					(locate self)$stdout.putstring["Primary setData[1]. \nLockdown time: " 
+					|| (locate self)$timeOfDay.asString || "\n"]
 					lock <- true
 						timeStamp <- (locate self)$timeOfDay
 						myClonable.setData[newData]
@@ -74,7 +75,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			export operation setData[newData : Any, upn : Time]
 				(locate self)$stdout.putstring["Primary setData[2]."]
-				if upn > timestamp then 
+				if upn > timeStamp then 
 					self.setData[newData]
 				end if
 
@@ -90,6 +91,10 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				unavailable
 					(locate self)$stdout.putstring["Primary getData. Unavailable" || "\n"]
 				end unavailable
+			end getData
+
+			export operation getData[key : Any] -> [res : Any]
+				res <- myClonable.getData[key]
 			end getData
 	
 			export operation ping
@@ -116,11 +121,9 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			operation notify[primary : replicaType]
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
-					(locate self)$stdout.putstring["Primary notify. Before. Replicas: " 
-						||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 					replicas[i].update[primary]
 				end for
-				(locate self)$stdout.putstring["Primary notify. After. Replicas: " 
+				(locate self)$stdout.putstring["Primary has notified all replicas. Replicas: " 
 					||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 			end notify
 
@@ -216,7 +219,9 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 					begin
 						kill <- false
 						if replicas.upperbound < (N - 1) then 
-							(locate self)$stdout.putstring["\nPrimary processloop. Active nodes: "|| (replicas.upperbound + 1).asString|| " - Required nodes: "  ||N.asString||" nodes. "||"\n"]
+							(locate self)$stdout.putstring["\nPrimary processloop. Available nodes: "
+							|| (replicas.upperbound + 1).asString|| " - Required nodes: "  ||N.asString
+							||" nodes. Open more nodes."||"\n"]
 						end if
 						%(locate self)$stdout.putstring["\nPrimary processloop. LNN: " ||(locate self)$LNN.asString||"\n"]
 						%(locate self)$stdout.putstring["\n\tAvailableNodes.upperbound: " || availableNodes.upperbound.asString 

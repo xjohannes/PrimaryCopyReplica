@@ -21,35 +21,36 @@ const testSuite <- object testSuite
 		%(locate self).delay[Time.create[2,0]]
 		var keys : Array.of[String] 
 		var objects : Array.of[FilmDataType]
-		(locate self)$stdout.putstring["TestSuit Debug 1.  " || "\n"]
 		keys, objects  <- self.produceData
-		(locate self)$stdout.putstring["TestSuit Debug 2.  " || "\n"]
 		var testRep : ClonableType <- nameServerConstructor.create[0, 0, keys, objects]
 		serverInterfaces <- framework.replicateMe[testRep, 2]
 		
 		var insertData : Array.of[any] <- Array.of[any].create[0]
 		insertData.addUpper["Godfather 2"]
 		insertData.addUpper[FilmDataCreator.create["The Godfather 2", "Al Pacino", "1974"]]
-		(locate self)$stdout.putstring["TestSuit Debug 3.  " || "\n"]
 		serverInterfaces[0].setData[insertData]
-		(locate self)$stdout.putstring["TestSuit Debug 4.  " || "\n"]
+		
 		var i : Integer <- 0
 		loop
 			exit when serverInterfaces.upperbound > 0
 			begin
+				(locate self)$stdout.putstring["TestSuit Debug 1.  " || "\n"]
 				(locate self).delay[Time.create[2,0]]
 				serverInterfaces <- framework.refreshProxyList
 			end
 		end loop
-		
-		(locate self)$stdout.putstring["TestSuit Debug 5.  " || "\n"]
 				
-		insertData.addUpper["Godfather 3"]
-		(locate self)$stdout.putstring["TestSuit Debug 6.  " || "\n"]
+		insertData.addUpper["Taxi Driver"]
+		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Taxi Driver' (in ordinary replica):  " || "\n"]
 		insertData.addUpper[FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"]]
-		(locate self)$stdout.putstring["TestSuit Debug 7.  " || "\n"]
 		serverInterfaces[1].setData[insertData]
-		
+		(locate self).delay[Time.create[2,0]]
+		(locate self)$stdout.putstring["TestSuit: Asking framework to get 'Taxi Driver' (from primary).  " || "\n"]
+		var dataPacked : Any <- serverInterfaces[0].getData["Taxi Driver"]
+		(locate self)$stdout.putstring["Getting data from lookup opertation. Asking for 'Taxi Driver'. " || "\n"]
+		var dataUnpacked : FilmDataType <- view dataPacked as FilmDataType
+		(locate self)$stdout.putstring["Printing results from query: " || "\n"]
+		dataUnpacked.print
 		
 		unavailable
 			(locate self)$stdout.putstring["TestSuit Process. Unavailable " || "\n"]

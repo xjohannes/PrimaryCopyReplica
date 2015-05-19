@@ -61,6 +61,7 @@ const framework <- object framework
 	end getReplicas
 
 	export operation refreshProxyList -> [res : Array.of[ClonableType]]
+		replicas <- replicas[0].getReplicas
 		res <- self.createProxies
 	end refreshProxyList
 

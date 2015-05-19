@@ -36,7 +36,7 @@ const OrdinaryConstructor <- class oridnaryConstructor[myClonable : ClonableType
 					||availableNodes.upperbound.asString || "\n"]
 				
 				unavailable
-					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
 				end unavailable
 			end addAvailableNode
 
@@ -86,12 +86,12 @@ const OrdinaryConstructor <- class oridnaryConstructor[myClonable : ClonableType
 			end update
 
 			export operation setData[newData : Any]
-				(locate self)$stdout.putstring["Primary setData[1]. Calling primary update."]
+				(locate self)$stdout.putstring["Ordinary setData[1]. Calling primary setData[2]." || "\n"]
 				replicas[0].setData[newData, (locate self)$timeOfDay]
 				%myClonable.setData[newData]
 
 				unavailable
-					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
 					pending <- newData
 				end unavailable
 			end setData
@@ -108,6 +108,10 @@ const OrdinaryConstructor <- class oridnaryConstructor[myClonable : ClonableType
 				unavailable
 					(locate self)$stdout.putstring["ordinary getData. Unavailable" || "\n"]
 				end unavailable
+			end getData
+
+			export operation getData[key : Any] -> [res : Any]
+				res <- myClonable.getData[key]
 			end getData
 	
 			export operation ping
