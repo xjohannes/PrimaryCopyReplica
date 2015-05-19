@@ -3,8 +3,8 @@ export nameServerConstructor
 const nameServerConstructor <- object nameServerConstructor
 	var createdServers : Integer <- 1
 
-	export operation create[parentId : Integer, serialNr : Integer, newKeys : Array.of[String]
-							, newObjects : Array.of[FilmDataType]] -> [newObject : ClonableType]
+	export operation create[parentId : Integer, serialNr : Integer, initKeys : Array.of[String]
+							, initObjects : Array.of[FilmDataType]] -> [newObject : ClonableType]
 		newObject <- object nameServer
 			var init : boolean <- false	
 			var keys : Array.of[String] <- Array.of[String].create[0]
