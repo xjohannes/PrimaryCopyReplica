@@ -35,31 +35,25 @@ const nameServerConstructor <- object nameServerConstructor
 			end cloneMe
 
 			export operation setData[newData : Any]
-				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
-				var arrTmp : Array.of[Any] <- view newData as Array.of[Any]
-				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
-				var keyTmp : String <- view arrTmp[0] as String
-				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
-				var objTmp : FilmDataType <- view arrTmp[1] as FilmDataType
-				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
-				self.setData[keyTmp, objTmp]
+				var resultArray : Array.of[Any] <- view newData as Array.of[Any]
+				var keysTmp : String <- view resultArray[0] as String
+				var objsTmp : FilmDataType <- view resultArray[1] as FilmDataType
+				self.setData[keysTmp, objsTmp]
 			end setData
 
 			export operation setData[newKey: String, newObject : FilmDataType]
 				keys.addupper[newKey]
 				objects.addupper[newObject]
-				self.print["setData"]
+				self.print["NameServer setData"]
 			end setData
 
 			export operation getData -> [res : Array.of[Any]]
 				var resultArray : Array.of[Any] <- Array.of[Any].create[0]
-				var tmp : Any <- self.getKeys
-				var tmpArr : Any <- view tmp as Any
-				resultArray.addUpper[tmpArr]
+				var tmp : Any <- keys[keys.upperbound]
+				resultArray.addUpper[tmp]
 				
-				tmp  <- self.getObjects
-				tmpArr <- view tmp as Any
-				resultArray.addUpper[tmpArr]
+				tmp  <- objects[objects.upperbound]
+				resultArray.addUpper[tmp]
 				res <- resultArray
 			end getData
 
@@ -79,8 +73,8 @@ const nameServerConstructor <- object nameServerConstructor
 			end lookup
 
 			export operation print[msg : String]
-				%(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"] 
-				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
+				(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"]  
+				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
 					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
 					objects[i].print
 				end for
@@ -105,7 +99,7 @@ const nameServerConstructor <- object nameServerConstructor
 					exit when init == true 
 					begin
 						%(locate self)$stdout.putstring["nameServer: Prosess. Id: "|| self.getSerial.asString ||"\n"]
-						self.print[""]
+						self.print["NameServer Process"]
 						%(locate self)$stdout.putstring["Parent Id: " || self.getParentId.asString || "\n"]	
 						(locate self)$stdout.putstring[" ---\n"]	
 						(locate self).delay[Time.create[5,0]]

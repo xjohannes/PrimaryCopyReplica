@@ -59,7 +59,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			export operation setData[newData : Any]
 				if lock == false then 
-					(locate self)$stdout.putstring["Primary setData[1]. \nLockdown time: " 
+					(locate self)$stdout.putstring["Primary setData[1]. \n\tLockdown time: " 
 					|| (locate self)$timeOfDay.asString || "\n"]
 					lock <- true
 						timeStamp <- (locate self)$timeOfDay
@@ -69,7 +69,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				end if
 				
 				unavailable
-					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["Primary setData[1]. Unavailable" || "\n"]
 				end unavailable
 			end setData
 
@@ -80,7 +80,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				end if
 
 				unavailable
-					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
+					(locate self)$stdout.putstring["Primary setData[2]. Unavailable" || "\n"]
 				end unavailable
 			end setData
 
@@ -94,6 +94,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			end getData
 
 			export operation getData[key : Any] -> [res : Any]
+				(locate self)$stdout.putstring["Primary getData[1]." || "\n"]
 				res <- myClonable.getData[key]
 			end getData
 	
@@ -117,13 +118,14 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update
 				end for
+				(locate self)$stdout.putstring["Primary has notified all replicas. " || "\n"]
 			end notify
 
 			operation notify[primary : replicaType]
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update[primary]
 				end for
-				(locate self)$stdout.putstring["Primary has notified all replicas. Replicas: " 
+				(locate self)$stdout.putstring["Primary has notified all replicas[1]. Replicas: " 
 					||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 			end notify
 

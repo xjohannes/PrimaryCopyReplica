@@ -26,9 +26,14 @@ const testSuite <- object testSuite
 		serverInterfaces <- framework.replicateMe[testRep, 2]
 		
 		var insertData : Array.of[any] <- Array.of[any].create[0]
-		insertData.addUpper["Godfather 2"]
+		var input : String <- "Godfather 2"
+		insertData.addUpper[input]
 		insertData.addUpper[FilmDataCreator.create["The Godfather 2", "Al Pacino", "1974"]]
+		if typeof insertData[0] == string then
+			(locate self)$stdout.putstring["TestSuit Debug 1.  Typeof insertData is string" || "\n"]
+		end if
 		serverInterfaces[0].setData[insertData]
+		insertData <- Array.of[Any].create[0]
 		
 		var i : Integer <- 0
 		loop
@@ -40,11 +45,13 @@ const testSuite <- object testSuite
 			end
 		end loop
 				
-		insertData.addUpper["Taxi Driver"]
+		insertData.addUpper[(view "Taxi Driver" as Any)]
 		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Taxi Driver' (in ordinary replica):  " || "\n"]
-		insertData.addUpper[FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"]]
+		insertData.addUpper[(view FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"] as Any)]
 		serverInterfaces[1].setData[insertData]
+		
 		(locate self).delay[Time.create[2,0]]
+		
 		(locate self)$stdout.putstring["TestSuit: Asking framework to get 'Taxi Driver' (from primary).  " || "\n"]
 		var dataPacked : Any <- serverInterfaces[0].getData["Taxi Driver"]
 		(locate self)$stdout.putstring["Getting data from lookup opertation. Asking for 'Taxi Driver'. " || "\n"]
