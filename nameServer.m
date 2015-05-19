@@ -44,6 +44,7 @@ const nameServerConstructor <- object nameServerConstructor
 			export operation setData[newKey: String, newObject : FilmDataType]
 				keys.addupper[newKey]
 				objects.addupper[newObject]
+				self.print["setData"]
 			end setData
 
 			export operation getData -> [res : Array.of[Any]]
@@ -61,7 +62,7 @@ const nameServerConstructor <- object nameServerConstructor
 			end getData
 
 			export operation lookup[name : String] -> [obj : FilmDataType]
-				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 0
+				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
 					if name == keys[i] then
 						obj <- objects[i]
 						return
@@ -72,14 +73,29 @@ const nameServerConstructor <- object nameServerConstructor
 			end lookup
 
 			export operation print[msg : String]
-
+				(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"] 
+				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
+					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
+					objects[i].print
+				end for
 			end print
 
 			operation copyData -> [newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
+				var tmpKeys : Array.of[String] <- Array.of[String].create[0]
+				var tmpObjects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0]
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
-					newKeys[i] <- keys[i]
-					newObjects[i] <- objects[i]
+					(locate self)$stdout.putstring["nameServer: copyData i: "||i.asString || "\n"]
+					(locate self)$stdout.putstring["nameServer: copyData keys.upperbound: "||keys.upperbound.asString || "\n"]
+					if keys[i] !== nil then
+						(locate self)$stdout.putstring["nameServer: keys[i] !==nil: "\
+						|| "\n"]
+						tmpKeys.addUpper[keys[i]]
+						tmpObjects.addUpper[objects[i]]
+					end if
+					
 				end for
+				newKeys <- tmpKeys
+				newObjects <- tmpObjects
 			end copyData
 
 			process
@@ -95,6 +111,10 @@ const nameServerConstructor <- object nameServerConstructor
 				unavailable
 					(locate self)$stdout.putstring["nameServer: nameServer Prosess. Unavailable " || "\n"]
 				end unavailable
+
+				failure
+					(locate self)$stdout.putstring["NameServer Process. Failure." ||"\n"]
+				end failure
 			end process			
 
 			initially

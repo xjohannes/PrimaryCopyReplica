@@ -2,7 +2,7 @@ export testSuite
 
 const testSuite <- object testSuite
 	const home <- (locate self)
-	var serverInterfaces : Array.of[ClonableType]
+	var serverInterfaces : Array.of[ClonableType] <- Array.of[ClonableType].create[0]
 
 	operation produceData -> [keys : Array.of[String], objects : Array.of[FilmDataType]]
 		keys <- Array.of[String].create[0]
@@ -26,21 +26,32 @@ const testSuite <- object testSuite
 		(locate self)$stdout.putstring["TestSuit Debug 2.  " || "\n"]
 		var testRep : ClonableType <- nameServerConstructor.create[0, 0, keys, objects]
 		serverInterfaces <- framework.replicateMe[testRep, 2]
-		(locate self).delay[Time.create[6,0]]
+		
 		var insertData : Array.of[any] <- Array.of[any].create[0]
 		insertData.addUpper["Godfather 2"]
 		insertData.addUpper[FilmDataCreator.create["The Godfather 2", "Al Pacino", "1974"]]
 		(locate self)$stdout.putstring["TestSuit Debug 3.  " || "\n"]
-		serverInterfaces[1].setData[insertData]
-		(locate self)$stdout.putstring["TestSuit Debug 4.  " || "\n"]
-		insertData.addUpper["Godfather 3"]
-		insertData.addUpper[FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"]]
-		serverInterfaces[0].setData[insertData]
-
+		if serverInterfaces !== nil then 
+			(locate self)$stdout.putstring["TestSuit Debug 4.  " || "\n"]
+			serverInterfaces[0].setData[insertData]
+			if serverInterfaces !== nil then 
+				(locate self)$stdout.putstring["TestSuit Debug 5.  " || "\n"]
+				(locate self).delay[Time.create[6,0]]
+				insertData.addUpper["Godfather 3"]
+				(locate self)$stdout.putstring["TestSuit Debug 6.  " || "\n"]
+				insertData.addUpper[FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"]]
+				(locate self)$stdout.putstring["TestSuit Debug 7.  " || "\n"]
+				serverInterfaces[1].setData[insertData]
+				(locate self)$stdout.putstring["TestSuit Debug 8.  " || "\n"]
+			end if
+		end if
+		
 		unavailable
 			(locate self)$stdout.putstring["TestSuit Prosess. Unavailable " || "\n"]
 		end unavailable
-		
+		failure
+			(locate self)$stdout.putstring["TestSuite. Failure. ." ||"\n"]
+		end failure
 	end process
 end testSuite
 

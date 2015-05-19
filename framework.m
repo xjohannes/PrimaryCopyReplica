@@ -8,6 +8,7 @@ const framework <- object framework
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[ClonableType]]
 		replicas <- Array.of[replicaType].create[(N -1)]
+		%proxy <- Array.of[ClonableType].create[replicas.upperbound]
 		(locate self)$stdout.putstring["ReplicateMe. replicas upper: "|| replicas.upperbound.asString ||"\n"]
 		loop
 			exit when home.getActiveNodes.upperbound > 0 
@@ -28,16 +29,28 @@ const framework <- object framework
 			end if
 		end for
 		replicas[0] <- PrimaryConstructor.create[X, 0, N, PrimaryConstructor, OrdinaryConstructor]
-		proxy <- view replicas as Array.of[ClonableType]
 		fix replicas[0] at home$activeNodes[1]$theNode
 		fix X at home$activeNodes[1]$theNode
 		replicas[0].initializeDataStructures[replicas, availableNodes]
-
-
+		proxy <- self.createProxies
+		
 		unavailable
 			(locate self)$stdout.putstring["Framework: replacateMe. Unavailable " || "\n"]
 		end unavailable
+
+		%failure
+			%(locate self)$stdout.putstring["ReplicateMe. Failure. ." ||"\n"]
+		%end failure
+
 	end replicateMe
+
+	operation createProxies -> [res : Array.of[ClonableType]]
+		var tmp : Array.of[clonableType] <- Array.of[ClonableType].create[0]
+		for i : Integer <- 0 while i <= replicas.upperbound by i <- i + 1
+			tmp.addUpper[(view replicas[i] as ClonableType)]
+		end for
+		res <- tmp
+	end createProxies
 
 	export operation getAvailableNodes -> [res : Array.of[Node]]
 		res <- availableNodes
@@ -73,5 +86,5 @@ end framework
 
 %%QUESTIONS:
 %% instansiateNodeElements is run twice when setNodeEventHandler
-%%    
+%% Why doesnt replicas conform to clonableType. They have the same operations as clonableType
 %% 

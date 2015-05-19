@@ -59,7 +59,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			export operation setData[newData : Any]
 				if lock == false then 
-					(locate self)$stdout.putstring["Primary setData[1]. Lockdown time: " || (locate self)$timeOfDay.asString ]
+					(locate self)$stdout.putstring["Primary setData[1]. Lockdown time: " || (locate self)$timeOfDay.asString || "\n"]
 					lock <- true
 						timeStamp <- (locate self)$timeOfDay
 						myClonable.setData[newData]
@@ -116,12 +116,12 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			operation notify[primary : replicaType]
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
-					(locate self)$stdout.putstring["Primary notify. Replicas: " 
-				||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
+					(locate self)$stdout.putstring["Primary notify. Before. Replicas: " 
+						||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 					replicas[i].update[primary]
 				end for
-				(locate self)$stdout.putstring["Primary notify. Replicas: " 
-				||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
+				(locate self)$stdout.putstring["Primary notify. After. Replicas: " 
+					||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 			end notify
 
 			export operation removeUnavailableReplica
@@ -135,7 +135,6 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				end loop
 
 				unavailable
-					
 					if i !== replicas.upperbound then
 						replicas[i] <- replicas.removeUpper
 					else
@@ -231,8 +230,8 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 					(locate self)$stdout.putstring["Primary process. Unavailable" || "\n"]
 				end unavailable
 				failure
-						(locate self)$stdout.putstring["Primary process. Failure. Process." ||"\n"]
-					end failure
+					(locate self)$stdout.putstring["Primary process. Failure. Process." ||"\n"]
+				end failure
 			end process
 end primaryConstructor
 
