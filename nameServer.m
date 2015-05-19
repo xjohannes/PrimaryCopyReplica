@@ -74,10 +74,10 @@ const nameServerConstructor <- object nameServerConstructor
 
 			export operation print[msg : String]
 				(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"]  
-				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
-					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
-					objects[i].print
-				end for
+				%for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
+				%	(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
+				%	objects[i].print
+				%end for
 			end print
 
 			operation copyData -> [newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
@@ -95,6 +95,8 @@ const nameServerConstructor <- object nameServerConstructor
 			end copyData
 
 			process
+				keys <- initKeys	
+				(locate self)$stdout.putstring["NameServer initially. keys.upper: "||initKeys.upperbound.asString ||"\n"]
 				loop
 					exit when init == true 
 					begin
@@ -116,7 +118,7 @@ const nameServerConstructor <- object nameServerConstructor
 			end process			
 
 			initially
-						
+					
 			end initially
 		end nameServer
 	end create

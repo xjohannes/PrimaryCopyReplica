@@ -22,6 +22,7 @@ const testSuite <- object testSuite
 		var keys : Array.of[String] 
 		var objects : Array.of[FilmDataType]
 		keys, objects  <- self.produceData
+		(locate self)$stdout.putstring["TestSuit Debug process. Keys.upperbound: " ||keys.upperbound.asString|| "\n"]
 		var testRep : ClonableType <- nameServerConstructor.create[0, 0, keys, objects]
 		serverInterfaces <- framework.replicateMe[testRep, 2]
 		
