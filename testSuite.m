@@ -31,26 +31,31 @@ const testSuite <- object testSuite
 		insertData.addUpper["Godfather 2"]
 		insertData.addUpper[FilmDataCreator.create["The Godfather 2", "Al Pacino", "1974"]]
 		(locate self)$stdout.putstring["TestSuit Debug 3.  " || "\n"]
-		if serverInterfaces !== nil then 
-			(locate self)$stdout.putstring["TestSuit Debug 4.  " || "\n"]
-			serverInterfaces[0].setData[insertData]
-			if serverInterfaces !== nil then 
-				(locate self)$stdout.putstring["TestSuit Debug 5.  " || "\n"]
-				(locate self).delay[Time.create[6,0]]
-				insertData.addUpper["Godfather 3"]
-				(locate self)$stdout.putstring["TestSuit Debug 6.  " || "\n"]
-				insertData.addUpper[FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"]]
-				(locate self)$stdout.putstring["TestSuit Debug 7.  " || "\n"]
-				serverInterfaces[1].setData[insertData]
-				(locate self)$stdout.putstring["TestSuit Debug 8.  " || "\n"]
-			end if
-		end if
+		serverInterfaces[0].setData[insertData]
+		(locate self)$stdout.putstring["TestSuit Debug 4.  " || "\n"]
+		var i : Integer <- 0
+		loop
+			exit when serverInterfaces.upperbound > 0
+			begin
+				(locate self).delay[Time.create[2,0]]
+				serverInterfaces <- framework.refreshProxyList
+			end
+		end loop
+		
+		(locate self)$stdout.putstring["TestSuit Debug 5.  " || "\n"]
+				
+		insertData.addUpper["Godfather 3"]
+		(locate self)$stdout.putstring["TestSuit Debug 6.  " || "\n"]
+		insertData.addUpper[FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"]]
+		(locate self)$stdout.putstring["TestSuit Debug 7.  " || "\n"]
+		serverInterfaces[1].setData[insertData]
+		
 		
 		unavailable
-			(locate self)$stdout.putstring["TestSuit Prosess. Unavailable " || "\n"]
+			(locate self)$stdout.putstring["TestSuit Process. Unavailable " || "\n"]
 		end unavailable
 		failure
-			(locate self)$stdout.putstring["TestSuite. Failure. ." ||"\n"]
+			(locate self)$stdout.putstring["TestSuite. Failure. Process" ||"\n"]
 		end failure
 	end process
 end testSuite

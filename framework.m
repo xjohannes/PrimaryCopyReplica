@@ -60,6 +60,10 @@ const framework <- object framework
 		res <- replicas
 	end getReplicas
 
+	export operation refreshProxyList -> [res : Array.of[ClonableType]]
+		res <- self.createProxies
+	end refreshProxyList
+
 	process
 		
 		unavailable
