@@ -1,6 +1,5 @@
 export primaryEventHandler
 export ordinaryEventHandler
-export frameworkEventHandler
 
 const primaryEventHandler <- class primaryEventHandler[myReplicaObject : replicaType, id : Integer
 							, N : Integer]
@@ -74,30 +73,3 @@ const ordinaryEventHandler <- class ordinaryEventHandler[myReplicaObject : repli
 					end failure
 				end nodeDown
 			end ordinaryEventHandler
-
-const frameworkEventHandler <- class frameworkEventHandler[framework : FrameworkType]
-				var replicas : Array.of[replicaType]
-				var availableNodes : Array.of[node]
-
-				export operation nodeUp[nodeUp : node, t : Time]
-					(locate self)$stdout.putstring["Framework NodeUp: LNN: "||nodeUp$LNN.asString ||"\n"]
-					framework.replicateMe
-
-					unavailable
-						(locate self)$stdout.putstring["Framework: nodeUp . Unavailable " || "\n"]
-					end unavailable
-				end nodeUp
-				
-				export operation nodeDown[nodeDown : node, t : Time]
-					(locate self)$stdout.putstring["Framework: nodeDown." || "\n"]
-					
-					unavailable 
-						(locate self)$stdout.putstring["Framework: nodeDown. Unavailable " || "\n"]
-					end unavailable
-
-					failure
-						(locate self)$stdout.putstring["Framework Failure:  "||"\n"]
-					end failure
-				end nodeDown
-	
-			end frameworkEventHandler

@@ -20,9 +20,10 @@ const framework <- object framework
 		end loop
 		for i : Integer <- 1 while i < home.getActiveNodes.upperbound by i <- i + 1
 			if i < N then 
-				replicas[i] <- OrdinaryConstructor.create[X, i, N, PrimaryConstructor, OrdinaryConstructor]
+				var clone : ClonableType <- X.cloneMe
+				replicas[i] <- OrdinaryConstructor.create[clone, i, N, PrimaryConstructor, OrdinaryConstructor]
 				fix replicas[i] at home$activeNodes[i]$theNode
-				fix X.cloneMe at home$activeNodes[i]$theNode
+				fix clone at home$activeNodes[i]$theNode
 			else
 				(locate self)$stdout.putstring["ReplicateMe. Adding availableNodes." ||"\n"]
 				availableNodes.addUpper[home$activeNodes[i]$theNode]

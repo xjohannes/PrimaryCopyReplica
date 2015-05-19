@@ -3,8 +3,7 @@ export nameServerConstructor
 const nameServerConstructor <- object nameServerConstructor
 	var createdServers : Integer <- 1
 
-	export operation create[parentId : Integer, serialNr : Integer, initKeys : Array.of[String]
-							, initObjects : Array.of[FilmDataType]] -> [newObject : ClonableType]
+	export operation create[parentId : Integer, serialNr : Integer] -> [newObject : ClonableType]
 		newObject <- object nameServer
 			var init : boolean <- false	
 			var keys : Array.of[String] <- Array.of[String].create[0]
@@ -31,7 +30,8 @@ const nameServerConstructor <- object nameServerConstructor
 				var newObjects : Array.of[FilmDataType]
 				(locate self)$stdout.putstring["NameServer: Cloning id: " || self.getSerial.asString || "\n"]
 				newKeys, newObjects <- self.copyData
-				clone <- nameServerConstructor.create[parentId, nameServerConstructor.createSerialNr, newKeys, newObjects]
+				(locate self)$stdout.putstring["NameServer: CloneMe: newKeys.upper: " || newKeys.upperbound.asString || "\n"]
+				clone <- nameServerConstructor.create[parentId, nameServerConstructor.createSerialNr]
 			end cloneMe
 
 			export operation setData[newData : Any]
@@ -61,15 +61,19 @@ const nameServerConstructor <- object nameServerConstructor
 				res <- self.lookup[(view key as String)]
 			end getData
 
+			export operation getInitData[initKeys : Array.of[String], initObjects : Array.of[FilmDataType]]
+
+			end getInitData
+
 			export operation lookup[name : String] -> [obj : FilmDataType]
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
-					if name == keys[i] then
+					(locate self)$stdout.putstring["NameServer Lookup: " || name || "\n"]
+					if name = keys[i] then
 						obj <- objects[i]
 						return
-					else
-						(locate self)$stdout.putstring["There is no object with the key: " || name || "\n"] 
 					end if
 				end for
+				(locate self)$stdout.putstring["There is no object with the key: " || name || "\n"] 
 			end lookup
 
 			export operation print[msg : String]
@@ -94,12 +98,26 @@ const nameServerConstructor <- object nameServerConstructor
 				newObjects <- tmpObjects
 			end copyData
 
+			export operation copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]] 
+				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
+					if inKeys[i] !== nil then
+						(locate self)$stdout.putstring["NameServer copyInitData. keys.upper: "
+						||keys.upperbound.asString ||"\n"]
+						keys.addUpper[inKeys[i]]
+						(locate self)$stdout.putstring["NameServer copyInitData. keys.upper: "
+						||keys.upperbound.asString ||"\n"]
+						objects.addUpper[inObjects[i]]
+					end if
+					
+				end for
+			end copyInitData
+
 			process
-				keys <- initKeys	
-				(locate self)$stdout.putstring["NameServer initially. keys.upper: "||initKeys.upperbound.asString ||"\n"]
 				loop
 					exit when init == true 
 					begin
+						(locate self)$stdout.putstring["NameServer initially. keys.upper: "
+						||keys.upperbound.asString ||"\n"]
 						%(locate self)$stdout.putstring["nameServer: Prosess. Id: "|| self.getSerial.asString ||"\n"]
 						self.print["NameServer Process"]
 						%(locate self)$stdout.putstring["Parent Id: " || self.getParentId.asString || "\n"]	
