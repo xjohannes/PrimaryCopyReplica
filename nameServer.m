@@ -35,9 +35,13 @@ const nameServerConstructor <- object nameServerConstructor
 			end cloneMe
 
 			export operation setData[newData : Any]
+				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
 				var arrTmp : Array.of[Any] <- view newData as Array.of[Any]
+				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
 				var keyTmp : String <- view arrTmp[0] as String
+				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
 				var objTmp : FilmDataType <- view arrTmp[1] as FilmDataType
+				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
 				self.setData[keyTmp, objTmp]
 			end setData
 
@@ -49,27 +53,18 @@ const nameServerConstructor <- object nameServerConstructor
 
 			export operation getData -> [res : Array.of[Any]]
 				var resultArray : Array.of[Any] <- Array.of[Any].create[0]
-				(locate self)$stdout.putstring["Debug. NameServer getData 1." ||"\n"]
 				var tmp : Any <- self.getKeys
-				(locate self)$stdout.putstring["Debug. NameServer getData 2." ||"\n"]
 				var tmpArr : Any <- view tmp as Any
-				(locate self)$stdout.putstring["Debug. NameServer getData 3." ||"\n"]
 				resultArray.addUpper[tmpArr]
-				(locate self)$stdout.putstring["Debug. NameServer getData 4." ||"\n"]
 				
 				tmp  <- self.getObjects
-				(locate self)$stdout.putstring["Debug. NameServer getData 5." ||"\n"]
 				tmpArr <- view tmp as Any
-				(locate self)$stdout.putstring["Debug. NameServer getData 6." ||"\n"]
 				resultArray.addUpper[tmpArr]
-				(locate self)$stdout.putstring["Debug. NameServer getData 7." ||"\n"]
 				res <- resultArray
 			end getData
 
 			export operation getData[key : Any] -> [res : Any]
-				(locate self)$stdout.putstring["Debug. NameServer getData[1] 1." ||"\n"]
 				res <- self.lookup[(view key as String)]
-				(locate self)$stdout.putstring["Debug. NameServer getData[1] 2." ||"\n"]
 			end getData
 
 			export operation lookup[name : String] -> [obj : FilmDataType]
