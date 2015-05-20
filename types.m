@@ -25,7 +25,6 @@ const ReplicaType <- typeObject replicaType
 	op setData[newData : Any, upn : Time]
 	op getData -> [currentState : Any]
 	op getData[key : Any] -> [res : Any]
-	op copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]]
 	op removeUnavailableReplica
 	op maintainReplicas
 	op initializeDataStructures[reps : Array.of[replicaType], an : Array.of[node]]
@@ -44,8 +43,7 @@ const ClonableType <- typeObject ClonableType
 	op cloneMe -> [clone : ClonableType]
 	op setData[newData : Any]
 	op getData -> [res : Any]
-	op getData[key : Any] -> [res : Any]
-	op copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]] 
+	op getData[key : Any] -> [res : Any] 
 	op print[msg : String]
 end ClonableType
 

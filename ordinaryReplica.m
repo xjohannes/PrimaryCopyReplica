@@ -113,10 +113,6 @@ const OrdinaryConstructor <- class oridnaryConstructor[myClonable : ClonableType
 			export operation getData[key : Any] -> [res : Any]
 				res <- myClonable.getData[key]
 			end getData
-
-			export operation copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]]
-
-			end copyInitData
 	
 			export operation ping
 				(locate self)$stdout.putstring["Ordinary ping."|| "\n"]

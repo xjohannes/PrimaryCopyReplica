@@ -7,26 +7,14 @@ const testSuite <- object testSuite
 	
 
 	process
-		%(locate self).delay[Time.create[2,0]]
-		var keys : Array.of[String] 
-		var objects : Array.of[FilmDataType]
-		%keys, objects  <- self.produceData
-		%(locate self)$stdout.putstring["TestSuit Debug process. Keys.upperbound: " ||keys.upperbound.asString|| "\n"]
-		var testRep : ClonableType <- nameServerConstructor.create[0, 0]
-		%testRep.copyInitData[move keys, objects]
-		(locate self)$stdout.putstring["TestSuit Debug 0.  " || "\n"]
-		serverInterfaces <- framework.replicateMe[testRep, 2]
-		(locate self)$stdout.putstring["TestSuit Debug 1.  " || "\n"]
 		var insertData : Array.of[any] <- Array.of[any].create[0]
-		(locate self)$stdout.putstring["TestSuit Debug 2.  " || "\n"]
 		var input : String <- "Godfather 2"
-		(locate self)$stdout.putstring["TestSuit Debug 3.  " || "\n"]
+		var testRep : ClonableType <- nameServerConstructor.create[0, 0]
+		
+		serverInterfaces <- framework.replicateMe[testRep, 2]
+		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Godfather 2' (in Primary replica):  " || "\n"]
 		insertData.addUpper[input]
-		(locate self)$stdout.putstring["TestSuit Debug 4.  " || "\n"]
 		insertData.addUpper[FilmDataCreator.create["The Godfather 2", "Al Pacino", "1974"]]
-		if typeof insertData[0] == string then
-			(locate self)$stdout.putstring["TestSuit Debug 1.  Typeof insertData is string" || "\n"]
-		end if
 		serverInterfaces[0].setData[insertData]
 		insertData <- Array.of[Any].create[0]
 		
@@ -48,9 +36,8 @@ const testSuite <- object testSuite
 		
 		(locate self)$stdout.putstring["TestSuit: Asking framework to get 'Taxi Driver' (from primary).  " || "\n"]
 		var dataPacked : Any <- serverInterfaces[0].getData["Taxi Driver"]
-		(locate self)$stdout.putstring["TestSuite: Getting data from lookup opertation. Asking for 'Taxi Driver'. " || "\n"]
 		var dataUnpacked : FilmDataType <- view dataPacked as FilmDataType
-		(locate self)$stdout.putstring["Printing results from query: " || "\n"]
+		(locate self)$stdout.putstring["Printing results from query: " || "\n\n"]
 		dataUnpacked.print
 		
 		unavailable

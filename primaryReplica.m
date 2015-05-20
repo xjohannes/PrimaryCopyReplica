@@ -97,10 +97,6 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				(locate self)$stdout.putstring["Primary getData[1]." || "\n"]
 				res <- myClonable.getData[key]
 			end getData
-
-			export operation copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]]
-
-			end copyInitData
 	
 			export operation ping
 				(locate self)$stdout.putstring["Primary ping."|| "\n"]

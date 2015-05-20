@@ -30,7 +30,6 @@ const nameServerConstructor <- object nameServerConstructor
 				var newObjects : Array.of[FilmDataType]
 				(locate self)$stdout.putstring["NameServer: Cloning id: " || self.getSerial.asString || "\n"]
 				newKeys, newObjects <- self.copyData
-				(locate self)$stdout.putstring["NameServer: CloneMe: newKeys.upper: " || newKeys.upperbound.asString || "\n"]
 				clone <- nameServerConstructor.create[parentId, nameServerConstructor.createSerialNr]
 			end cloneMe
 
@@ -67,7 +66,6 @@ const nameServerConstructor <- object nameServerConstructor
 
 			export operation lookup[name : String] -> [obj : FilmDataType]
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
-					(locate self)$stdout.putstring["NameServer Lookup: " || name || "\n"]
 					if name = keys[i] then
 						obj <- objects[i]
 						return
@@ -77,7 +75,7 @@ const nameServerConstructor <- object nameServerConstructor
 			end lookup
 
 			export operation print[msg : String]
-				(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"]  
+				(locate self)$stdout.putstring["Film data entry: " || msg || "\n"]  
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
 					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
 					objects[i].print
@@ -97,24 +95,6 @@ const nameServerConstructor <- object nameServerConstructor
 				newKeys <- tmpKeys
 				newObjects <- tmpObjects
 			end copyData
-
-			export operation copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]] 
-				(locate self)$stdout.putstring["NameServer copyInitData. " || keys.upperbound.asString
-						||"\n"]
-				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
-					if inKeys[i] !== nil then
-						(locate self)$stdout.putstring["NameServer copyInitData. keys.upper: "
-						||keys.upperbound.asString ||"\n"]
-						keys.addUpper[inKeys[i]]
-						(locate self)$stdout.putstring["NameServer copyInitData. keys.upper: "
-						||keys.upperbound.asString ||"\n"]
-						objects.addUpper[inObjects[i]]
-					else
-						(locate self)$stdout.putstring["NameServer copyInitData. inkeys[i] == nil .upper: "
-						||keys[i].asString ||"\n"]
-					end if
-				end for
-			end copyInitData
 
 			process
 				loop
