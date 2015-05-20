@@ -3,7 +3,7 @@ export nameServerConstructor
 const nameServerConstructor <- object nameServerConstructor
 	var createdServers : Integer <- 1
 
-	export operation create[parentId : Integer, serialNr : Integer] -> [newObject : ClonableType]
+	export operation create[parentId : Integer, serialNr : Integer, initKeys : Array.of[String]] -> [newObject : ClonableType]
 		newObject <- object nameServer
 			var init : boolean <- false	
 			attached var keys : Array.of[String] <- Array.of[String].create[0]
@@ -117,24 +117,24 @@ const nameServerConstructor <- object nameServerConstructor
 			end process			
 
 			initially
-				keys, objects <- nameServerConstructor.produceInitData
+				keys, objects <- nameServerConstructor.getInitData
 				self.print["Initial files in name server object " || self.getSerial.asString || ":\n"]
 			end initially
 		end nameServer
 	end create
 
-	export operation produceInitData -> [keys : Array.of[String], objects : Array.of[FilmDataType]]
-		keys <- Array.of[String].create[0]
-		objects <- Array.of[FilmDataType].create[0]
-		keys.addUpper["Deer Hunter"]
-		objects.addUpper[FilmDataCreator.create["The Deer Hunter", "Robert DeNiro", "1979"]]
-		keys.addUpper["Waking Life"]
-		objects.addUpper[FilmDataCreator.create["Waking Life", "Ethan Hawk", "2001"]]
-		keys.addUpper["Godfather"]
-		objects.addUpper[FilmDataCreator.create["The Godfather", "Marlon Brando", "1972"]]
-		keys.addUpper["Her"]
-		objects.addUpper[FilmDataCreator.create["Her", " Joaquin Phoenix", "2013"]]	
-	end produceInitData
+	export operation getInitData -> [keys : Array.of[String], objects : Array.of[FilmDataType]]
+		var tmpKeys : Array.of[String] <- Array.of[String].create[0]
+		var tmpObjects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0]
+		for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
+			if initKeys[i] !== nil then
+				tmpKeys.addUpper[initKeys[i]]
+				%tmpObjects.addUpper[objects[i]]
+			else
+				(locate self)$stdout.putstring["nameServer: getInitData: InitKeys == nil " || "\n"]
+			end if
+		end for
+	end getInitData
 
 	export operation createSerialNr -> [newSerial : Integer]
 		createdServers <- createdServers + 1

@@ -4,12 +4,27 @@ const testSuite <- object testSuite
 	const home <- (locate self)
 	var serverInterfaces : Array.of[ClonableType] <- Array.of[ClonableType].create[0]
 
+	export operation produceInitData -> [keys : Array.of[String], objects : Array.of[FilmDataType]]
+		keys <- Array.of[String].create[0]
+		objects <- Array.of[FilmDataType].create[0]
+		keys.addUpper["Deer Hunter"]
+		objects.addUpper[FilmDataCreator.create["The Deer Hunter", "Robert DeNiro", "1979"]]
+		keys.addUpper["Waking Life"]
+		objects.addUpper[FilmDataCreator.create["Waking Life", "Ethan Hawk", "2001"]]
+		keys.addUpper["Godfather"]
+		objects.addUpper[FilmDataCreator.create["The Godfather", "Marlon Brando", "1972"]]
+		keys.addUpper["Her"]
+		objects.addUpper[FilmDataCreator.create["Her", " Joaquin Phoenix", "2013"]]	
+	end produceInitData
 	
 
 	process
 		var insertData : Array.of[any] <- Array.of[any].create[0]
 		var input : String <- "Godfather 2"
-		var testRep : ClonableType <- nameServerConstructor.create[0, 0]
+		var keys : Array.of[String] <- Array.of[String].create[0]
+		var objects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0]
+		keys, objects <- self. produceInitData
+		var testRep : ClonableType <- nameServerConstructor.create[0, 0, keys]
 		
 		serverInterfaces <- framework.replicateMe[testRep, 2]
 		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Godfather 2' (in Primary replica):  " || "\n"]
