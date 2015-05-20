@@ -27,7 +27,7 @@ const testSuite <- object testSuite
 			end
 		end loop
 				
-		insertData.addUpper[(view "Taxi Driver" as Any)]
+		insertData.addUpper["Taxi Driver"]
 		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Taxi Driver' (in ordinary replica):  " || "\n"]
 		insertData.addUpper[(view FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"] as Any)]
 		serverInterfaces[1].setData[insertData]

@@ -48,8 +48,6 @@ const ordinaryEventHandler <- class ordinaryEventHandler[myReplicaObject : repli
 						if myReplicaObject == tmp[1] then
 							myReplicaObject.addAvailableNode[nodeUp]
 						end if 
-
-						
 					end unavailable
 				end nodeUp
 				

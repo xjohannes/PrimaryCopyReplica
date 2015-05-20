@@ -40,7 +40,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			end killProcess
 
 			export operation cloneMe -> [clone : ClonableType]
-				%% Dummy operation
+				%% Dummy operation: To be able to conform to ClonableType and thereby act as a proxy
 			end cloneMe
 
 			export operation update

@@ -1,6 +1,6 @@
 export OrdinaryConstructor
 
-const OrdinaryConstructor <- class oridnaryConstructor[myClonable : ClonableType, id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
+const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableType, id : Integer, N : Integer, PrimeConstructor : ConstructorType, OrdinConstructor : ConstructorType]
 			attached var replicas : Array.of[replicaType]
 			attached var availableNodes : Array.of[node]
 			

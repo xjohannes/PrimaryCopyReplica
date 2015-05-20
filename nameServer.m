@@ -31,6 +31,7 @@ const nameServerConstructor <- object nameServerConstructor
 				(locate self)$stdout.putstring["NameServer: Cloning id: " || self.getSerial.asString || "\n"]
 				newKeys, newObjects <- self.copyData
 				clone <- nameServerConstructor.create[parentId, nameServerConstructor.createSerialNr]
+
 			end cloneMe
 
 			export operation setData[newData : Any]
@@ -75,9 +76,11 @@ const nameServerConstructor <- object nameServerConstructor
 			end lookup
 
 			export operation print[msg : String]
-				(locate self)$stdout.putstring["Film data entry: " || msg || "\n"]  
+				(locate self)$stdout.putstring["\n " || msg || ":\n"]  
+				(locate self)$stdout.putstring["\n\t\tFilm data entrys in name server object " 
+				|| self.getSerial.asString  || ":\n"]  
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
-					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
+					(locate self)$stdout.putstring["\nKey - "|| keys[i] || ":\n"]
 					objects[i].print
 				end for
 			end print
@@ -99,13 +102,7 @@ const nameServerConstructor <- object nameServerConstructor
 			process
 				loop
 					exit when init == true 
-					begin
-						(locate self)$stdout.putstring["NameServer initially. keys.upper: "
-						||keys.upperbound.asString ||"\n"]
-						%(locate self)$stdout.putstring["nameServer: Prosess. Id: "|| self.getSerial.asString ||"\n"]
-						self.print["NameServer Process"]
-						%(locate self)$stdout.putstring["Parent Id: " || self.getParentId.asString || "\n"]	
-						(locate self)$stdout.putstring[" ---\n"]	
+					begin		
 						(locate self).delay[Time.create[5,0]]
 					end
 				end loop
@@ -121,6 +118,7 @@ const nameServerConstructor <- object nameServerConstructor
 
 			initially
 				keys, objects <- nameServerConstructor.produceInitData
+				self.print["Initial files in name server object " || self.getSerial.asString || ":\n"]
 			end initially
 		end nameServer
 	end create

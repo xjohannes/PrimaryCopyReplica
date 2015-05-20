@@ -1,5 +1,4 @@
 export FrameworkType
-export NodeElementType
 export ReplicaType
 export EventHandlerType
 export FilmDataType
@@ -55,9 +54,3 @@ end EventHandlerType
 const ConstructorType <- typeObject ConstructorType
 	op create[clonable: ClonableType, id : Integer, N : Integer, PrimaryConstructor : ConstructorType, OrdinaryConstructor : ConstructorType] -> [res : replicaType]
 end ConstructorType
-
-const NodeElementType <- typeObject nodeElementType
-	op getReplica -> [rep : replicaType]
-	op setReplica[replica : replicaType]
-	op getNode -> [n : Node]
-end nodeElementType
