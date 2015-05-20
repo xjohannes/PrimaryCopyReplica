@@ -1,18 +1,38 @@
+export timeServerConstructor
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Types etc %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+const agentType <- typeobject agentType
+  
+end agentType
+
+const BarrierMonitorType <- typeobject BarrierMonitorType
+  operation registerTime[t:Time]
+  operation done
+  operation waitForAgents
+  operation setTotalAgents[i:integer]
+end BarrierMonitorType
+
+%%%%%%%%%%%%%%%%%%%%%% end types %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%% Prog Env %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-const env <- object ENVIRONMENT
-  const home <- (locate self)
-  var nrOfNodes: Integer
-  var allNodes:NodeList 
-  var there:Array.of[Node]
-  var meanTime : Integer
+
+const timeServerConstructor <- object timeServerConstructor
+
+  var createdServers : Integer <- 0
+
+  export operation create -> [newObject : ClonableType]
+    newObject <- object timeServer
+      var nrOfNodes: Integer
+      var allNodes:NodeList 
+      var there:Array.of[Node]
+      var meanTime : Integer
+      attached var serialNr : Integer
   
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%% Object def %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% Inner Agent def %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 const AgentConstr <- class Agent[nodes:NodeList, agentId:Integer,BMMonitor:BarrierMonitorType]
     attached var nrOfNodesToVisit:Integer
@@ -26,13 +46,13 @@ const AgentConstr <- class Agent[nodes:NodeList, agentId:Integer,BMMonitor:Barri
         
         if nodes[i-1]$theNode !== (locate self) then 
           localTime <- currentNode$timeOfDay
-          currentNode$stdout.putstring["Agent: " || agentId.asString || ". I have moved. Local time is: " || localTime.asString || "\n"]
+          %(locate self)$stdout.putstring["Agent: "||serialNr.asString||"." || agentId.asString || ". I have moved. Local time is: " || localTime.asString || "\n"]
           BMMonitor.registerTime[localTime] 
         end if
       end for 
       
       BMMonitor.done
-      currentNode$stdout.putstring["Agent " || agentId.asString || " is done. Message from agent.\n"]
+      (locate self)$stdout.putstring["Agent " || agentId.asString || " is done. Message from agent.\n"]
     end process
 
     initially
@@ -44,9 +64,10 @@ const AgentConstr <- class Agent[nodes:NodeList, agentId:Integer,BMMonitor:Barri
   
   
 
-%%%%%%%%%%%%%%%%%%%%%% End Object def %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
+%%%%%%%%%%%%%%%%%%%%%% End Agent def %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%% Inner Barrier def %%%%%%%%%%%%%%%%%%%%%%%%%%
 
   const BarrierMonitor <- monitor object BarrierMonitor
     var agentsReturnQueue:Condition <- Condition.create
@@ -70,7 +91,7 @@ const AgentConstr <- class Agent[nodes:NodeList, agentId:Integer,BMMonitor:Barri
 
     export operation waitForAgents
       if agentsFinished < nrOfNodes then
-        stdout.putstring["Main process is waiting for agents\n"]
+        (locate self)$stdout.putstring["TimeServer nr: "||serialNr.asString||" is waiting for agents\n"]
        wait waitingForAgentsQueue
       end if
       signal agentsReturnQueue
@@ -86,33 +107,70 @@ const AgentConstr <- class Agent[nodes:NodeList, agentId:Integer,BMMonitor:Barri
 
   end BarrierMonitor
 
-  export operation getState -> [state : Any]
-    state <- meanTime
-  end getState
+%%%%%%%%%%%%%%%%%%%%%% End Barrier def %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  export operation setState[newState : Any]
-    meanTime <- view newState as Integer
-  end setState
-
-  export operation cloneMe -> [res : ClonableType]
-    % Remember to clone State as well
-  end cloneMe
-
-    process
-      stdout.putstring["Sending out " || nrOfNodes.asString || " agents: \n"]
+    export operation getMeanTime -> [state : Any]
+      state <- meanTime
+    end getMeanTime
     
-      for i : Integer <- 1 while i <= nrOfNodes by i <- i + 1
-        var temp:agentType <- AgentConstr.create[allNodes, i, BarrierMonitor]
-      end for
-      
-      BarrierMonitor.waitForAgents 
-      meanTime <-  (BarrierMonitor.getTotalTime.getMicroSeconds/nrOfNodes)
-      stdout.putstring["All agents have returned. The synchronized timestamp is: " ||   (BarrierMonitor.getTotalTime.getMicroSeconds/nrOfNodes).asString || "\n"]
+    export operation cloneMe -> [clone : ClonableType]
+      clone <- timeServerConstructor.create
+      clone.setData[self.getData]
+    end cloneMe
+    
+    export operation setData[newData : Any]
+      meanTime <- view newData as Integer
+    end setData
+    
+    export operation getData -> [res : Any]
+      res <- view self.getMeanTime as any
+    end getData
+    
+    export operation getData[key : Any] -> [res : Any] 
+    end getData
+    
+    export operation print[msg : String]
+      (locate self)$stdout.putstring["Id: " || self.getSerial.asString||"Mean time" || "\n"]
+    end print
+    export operation getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
+    end getInitData
+
+    operation getSerial -> [res : Integer]
+      res <- serialNr
+    end getSerial
+
+    process  
+      %if (locate self)$activeNodes.upperbound > 1 then 
+        loop
+          exit when false
+          begin
+            (locate self)$stdout.putstring["TimeServer process: "|| self.getSerial.asString ||"\n"]
+            (locate self)$stdout.putstring["nrOfNodes: "|| nrOfNodes.asString ||"\n"]
+            (locate self)$stdout.putstring["Active nodes: "|| (locate self)$activeNodes.upperbound.asString ||"\n"]
+            if nrOfNodes !== (locate self)$activeNodes.upperbound then 
+              nrOfNodes <- (locate self)$activeNodes.upperbound
+              (locate self)$stdout.putstring["Sending out " || (locate self)$activeNodes.upperbound.asString || " agents: \n"]
+              for i : Integer <- 1 while i <= nrOfNodes by i <- i + 1
+                var temp:agentType <- AgentConstr.create[(locate self)$activeNodes, i, BarrierMonitor]
+              end for
+              BarrierMonitor.waitForAgents 
+              meanTime <-  (BarrierMonitor.getTotalTime.getMicroSeconds/nrOfNodes)
+              (locate self)$stdout.putstring["TimeServer nr: "||serialNr.asString||". All agents have returned. "
+              ||"\n\tThe synchronized timestamp is: " 
+                ||(BarrierMonitor.getTotalTime.getMicroSeconds/nrOfNodes).asString || "\n"]
+            end if
+            (locate self).delay[Time.create[2, 0]]
+          end
+        end loop
+        
+      %end if
     end process
 
     initially
+      serialNr <- timeServerConstructor.createSerialNr
       there <- Array.of[Node].create[0]
-      allNodes <- home$activeNodes
+      allNodes <- (locate self)$activeNodes
       nrOfNodes <- allNodes.upperbound
       BarrierMonitor.setTotalAgents [nrOfNodes]
       for j: Integer <- 1 while j <= allNodes.upperbound by j <- j +1
@@ -120,18 +178,13 @@ const AgentConstr <- class Agent[nodes:NodeList, agentId:Integer,BMMonitor:Barri
       end for
 
     end initially
-end ENVIRONMENT
+    end timeServer
+  end create
 
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%% Types etc %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-const agentType <- typeobject agentType
-  
-end agentType
+  export operation createSerialNr -> [newSerial : Integer]
+    createdServers <- createdServers + 1
+    newSerial <- createdServers
+    (locate self)$stdout.putstring["Create serial. New serial: "|| newSerial.asString ||"\n"]
+  end createSerialNr
+end timeServerConstructor
 
-const BarrierMonitorType <- typeobject BarrierMonitorType
-  operation registerTime[t:Time]
-  operation done
-  operation waitForAgents
-  operation setTotalAgents[i:integer]
-end BarrierMonitorType
