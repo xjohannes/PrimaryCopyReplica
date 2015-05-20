@@ -27,6 +27,7 @@ const ReplicaType <- typeObject replicaType
 	op removeUnavailableReplica
 	op maintainReplicas
 	op initializeDataStructures[reps : Array.of[replicaType], an : Array.of[node]]
+	op getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
 	op ping
 	op print[msg : String]
 end replicaType
@@ -35,7 +36,7 @@ const FilmDataType <- typeObject filmDataType
 	op getTitle -> [title : String]
 	op getActor -> [actor : String]
 	op getProductionYear -> [prodYear : String]
-	op print
+	op print[msg : String]
 end filmDataType
 
 const ClonableType <- typeObject ClonableType
@@ -44,7 +45,17 @@ const ClonableType <- typeObject ClonableType
 	op getData -> [res : Any]
 	op getData[key : Any] -> [res : Any] 
 	op print[msg : String]
+	op getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
 end ClonableType
+
+const NameServerType <- typeObject NameServerType
+	op cloneMe -> [clone : ClonableType]
+	op setData[newData : Any]
+	op getData -> [res : Any]
+	op getData[key : Any] -> [res : Any] 
+	op print[msg : String]
+	op getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
+end NameServerType
 
 const EventHandlerType <- typeObject EventHandlerType
 	op nodeUp[n : node, t : Time]

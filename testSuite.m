@@ -24,7 +24,7 @@ const testSuite <- object testSuite
 		var keys : Array.of[String] <- Array.of[String].create[0]
 		var objects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0]
 		keys, objects <- self. produceInitData
-		var testRep : ClonableType <- nameServerConstructor.create[0, 0, keys]
+		var testRep : ClonableType <- nameServerConstructor.create[0, keys, objects]
 		
 		serverInterfaces <- framework.replicateMe[testRep, 2]
 		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Godfather 2' (in Primary replica):  " || "\n"]
@@ -53,7 +53,8 @@ const testSuite <- object testSuite
 		var dataPacked : Any <- serverInterfaces[0].getData["Taxi Driver"]
 		var dataUnpacked : FilmDataType <- view dataPacked as FilmDataType
 		(locate self)$stdout.putstring["Printing results from query: " || "\n\n"]
-		dataUnpacked.print
+		dataUnpacked.print["From test suite: "]
+		(locate self)$stdout.putstring["End Printing results from query: " || "\n\n"]
 		
 		unavailable
 			(locate self)$stdout.putstring["TestSuit Process. Unavailable " || "\n"]

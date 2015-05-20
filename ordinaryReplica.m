@@ -53,9 +53,13 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 			export operation update
 				(locate self)$stdout.putstring["Ordinary update. \n"]
 				var newData : Any <- replicas[0].getData
+				(locate self)$stdout.putstring["Ordinary update. locate myClonable: "
+					||(locate myClonable)$LNN.asString || "\n"]
+				(locate self)$stdout.putstring["Ordinary update. locate self: "
+					||(locate self)$LNN.asString || "\n"]
 				myClonable.setData[newData]
 				if pending !== nil then
-					replicas[0].setData[pending]
+					%replicas[0].setData[pending]
 					pending <- nil
 				end if
 
@@ -184,6 +188,10 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 			export operation print[msg : String]
 
 			end print
+
+			export operation getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
+
+			end getInitData
 
 			process
 				loop

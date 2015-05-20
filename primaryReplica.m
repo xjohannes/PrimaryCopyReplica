@@ -153,13 +153,16 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			export operation maintainReplicas
 				if (replicas.upperbound + 1) < N then
 					if availableNodes.upperbound >= 0  then
-						replicas.addUpper[OrdinConstructor.create[myClonable, (replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
+						var tmpClone : ClonableType <- myClonable.cloneMe
+						replicas.addUpper[OrdinConstructor.create[tmpClone, (replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
 						(locate self)$stdout.putstring["Primary maintainReplicas. Created a Replica. Replicas : "
 						||replicas.upperbound.asString || "\n"]
 						fix replicas[replicas.upperbound] at availableNodes[availableNodes.upperbound]
-						fix myClonable.cloneMe at availableNodes[availableNodes.upperbound]
+						fix tmpClone at availableNodes[availableNodes.upperbound]
 						(locate self)$stdout.putstring["Primary maintainReplicas. Moved replica to " 
 						|| availableNodes[availableNodes.upperbound]$LNN.asString || "\n"]
+						(locate self)$stdout.putstring["replica at node: " ||(locate replicas[replicas.upperbound])$LNN.asString 
+						||". Clone at node: "||(locate tmpClone)$LNN.asString|| "\n"]
 						var throw : node <- availableNodes.removeUpper
 						self.notify[self]
 					else
@@ -205,6 +208,9 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 
 			end print
 
+			export operation getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
+
+			end getInitData
 			process
 				loop
 					exit when init == true 
@@ -221,9 +227,9 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 					begin
 						kill <- false
 						if replicas.upperbound < (N - 1) then 
-							(locate self)$stdout.putstring["\nPrimary processloop. Available nodes: "
-							|| (replicas.upperbound + 1).asString|| " - Required nodes: "  ||N.asString
-							||" nodes. Open more nodes."||"\n"]
+							%(locate self)$stdout.putstring["\nPrimary processloop. Available nodes: "
+							%|| (replicas.upperbound + 1).asString|| " - Required nodes: "  ||N.asString
+							%||" nodes. Open more nodes."||"\n"]
 						end if
 						%(locate self)$stdout.putstring["\nPrimary processloop. LNN: " ||(locate self)$LNN.asString||"\n"]
 						%(locate self)$stdout.putstring["\n\tAvailableNodes.upperbound: " || availableNodes.upperbound.asString 
