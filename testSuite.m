@@ -4,27 +4,16 @@ const testSuite <- object testSuite
 	const home <- (locate self)
 	var serverInterfaces : Array.of[ClonableType] <- Array.of[ClonableType].create[0]
 
-	operation produceData -> [keys : Array.of[String], objects : Array.of[FilmDataType]]
-		keys <- Array.of[String].create[0]
-		objects <- Array.of[FilmDataType].create[0]
-		keys.addUpper["Deer Hunter"]
-		objects.addUpper[FilmDataCreator.create["The Deer Hunter", "Robert DeNiro", "1979"]]
-		keys.addUpper["Waking Life"]
-		objects.addUpper[FilmDataCreator.create["Waking Life", "Ethan Hawk", "2001"]]
-		keys.addUpper["Godfather"]
-		objects.addUpper[FilmDataCreator.create["The Godfather", "Marlon Brando", "1972"]]
-		keys.addUpper["Her"]
-		objects.addUpper[FilmDataCreator.create["Her", " Joaquin Phoenix", "2013"]]	
-	end produceData
+	
 
 	process
 		%(locate self).delay[Time.create[2,0]]
 		var keys : Array.of[String] 
 		var objects : Array.of[FilmDataType]
-		keys, objects  <- self.produceData
-		(locate self)$stdout.putstring["TestSuit Debug process. Keys.upperbound: " ||keys.upperbound.asString|| "\n"]
+		%keys, objects  <- self.produceData
+		%(locate self)$stdout.putstring["TestSuit Debug process. Keys.upperbound: " ||keys.upperbound.asString|| "\n"]
 		var testRep : ClonableType <- nameServerConstructor.create[0, 0]
-		testRep.copyInitData[keys, objects]
+		%testRep.copyInitData[move keys, objects]
 		(locate self)$stdout.putstring["TestSuit Debug 0.  " || "\n"]
 		serverInterfaces <- framework.replicateMe[testRep, 2]
 		(locate self)$stdout.putstring["TestSuit Debug 1.  " || "\n"]

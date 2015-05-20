@@ -6,7 +6,7 @@ const nameServerConstructor <- object nameServerConstructor
 	export operation create[parentId : Integer, serialNr : Integer] -> [newObject : ClonableType]
 		newObject <- object nameServer
 			var init : boolean <- false	
-			var keys : Array.of[String] <- Array.of[String].create[0]
+			attached var keys : Array.of[String] <- Array.of[String].create[0]
 			attached var objects : Array.of[FilmDataType] <- Array.of[FilmDataType].create[0] 
 
 			export operation getSerial -> [res : Integer]
@@ -78,10 +78,10 @@ const nameServerConstructor <- object nameServerConstructor
 
 			export operation print[msg : String]
 				(locate self)$stdout.putstring["PrintMsg: " || msg || "\n"]  
-				%for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
-				%	(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
-				%	objects[i].print
-				%end for
+				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
+					(locate self)$stdout.putstring["Key: "|| keys[i] || "\n"]
+					objects[i].print
+				end for
 			end print
 
 			operation copyData -> [newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
@@ -99,6 +99,8 @@ const nameServerConstructor <- object nameServerConstructor
 			end copyData
 
 			export operation copyInitData[inKeys : Array.of[String], inObjects : Array.of[FilmDataType]] 
+				(locate self)$stdout.putstring["NameServer copyInitData. " || keys.upperbound.asString
+						||"\n"]
 				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1
 					if inKeys[i] !== nil then
 						(locate self)$stdout.putstring["NameServer copyInitData. keys.upper: "
@@ -107,8 +109,10 @@ const nameServerConstructor <- object nameServerConstructor
 						(locate self)$stdout.putstring["NameServer copyInitData. keys.upper: "
 						||keys.upperbound.asString ||"\n"]
 						objects.addUpper[inObjects[i]]
+					else
+						(locate self)$stdout.putstring["NameServer copyInitData. inkeys[i] == nil .upper: "
+						||keys[i].asString ||"\n"]
 					end if
-					
 				end for
 			end copyInitData
 
@@ -136,10 +140,23 @@ const nameServerConstructor <- object nameServerConstructor
 			end process			
 
 			initially
-					
+				keys, objects <- nameServerConstructor.produceInitData
 			end initially
 		end nameServer
 	end create
+
+	export operation produceInitData -> [keys : Array.of[String], objects : Array.of[FilmDataType]]
+		keys <- Array.of[String].create[0]
+		objects <- Array.of[FilmDataType].create[0]
+		keys.addUpper["Deer Hunter"]
+		objects.addUpper[FilmDataCreator.create["The Deer Hunter", "Robert DeNiro", "1979"]]
+		keys.addUpper["Waking Life"]
+		objects.addUpper[FilmDataCreator.create["Waking Life", "Ethan Hawk", "2001"]]
+		keys.addUpper["Godfather"]
+		objects.addUpper[FilmDataCreator.create["The Godfather", "Marlon Brando", "1972"]]
+		keys.addUpper["Her"]
+		objects.addUpper[FilmDataCreator.create["Her", " Joaquin Phoenix", "2013"]]	
+	end produceInitData
 
 	export operation createSerialNr -> [newSerial : Integer]
 		createdServers <- createdServers + 1
