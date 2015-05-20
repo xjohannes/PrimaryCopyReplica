@@ -32,8 +32,8 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 
 			export operation addAvailableNode[newAvailableNode : Node]
 				availableNodes.addUpper[newAvailableNode]
-				(locate self)$stdout.putstring["Ordinary addAvailableNode. AvailableNodes.upper: "
-					||availableNodes.upperbound.asString || "\n"]
+				%(locate self)$stdout.putstring["Ordinary addAvailableNode. AvailableNodes.upper: "
+				%	||availableNodes.upperbound.asString || "\n"]
 				
 				unavailable
 					(locate self)$stdout.putstring["Ordinary update. Unavailable" || "\n"]
@@ -51,12 +51,12 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 			end cloneMe
 
 			export operation update
-				(locate self)$stdout.putstring["Ordinary update. \n"]
+				%(locate self)$stdout.putstring["Ordinary update. \n"]
 				var newData : Any <- replicas[0].getData
-				(locate self)$stdout.putstring["Ordinary update. locate myClonable: "
-					||(locate myClonable)$LNN.asString || "\n"]
-				(locate self)$stdout.putstring["Ordinary update. locate self: "
-					||(locate self)$LNN.asString || "\n"]
+				%(locate self)$stdout.putstring["Ordinary update. locate myClonable: "
+				%	||(locate myClonable)$LNN.asString || "\n"]
+				%(locate self)$stdout.putstring["Ordinary update. locate self: "
+				%	||(locate self)$LNN.asString || "\n"]
 				myClonable.setData[newData]
 				if pending !== nil then
 					%replicas[0].setData[pending]
@@ -69,7 +69,7 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 			end update
 
 			export operation update[primary : replicaType]
-				(locate self)$stdout.putstring["Ordinary update[primary]. \n"]
+				%(locate self)$stdout.putstring["Ordinary update[primary]. \n"]
 				if myEventHandler == nil then 
 					myEventHandler <- ordinaryEventHandler.create[self, id, N]
 					(locate self)$stdout.putstring["Ordinary update. Setting eventListener" || "\n"]
@@ -79,9 +79,10 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 				replicas <- primary.getReplicas
 				availableNodes <- primary.getAvailableNodes
 				self.initializeDataStructures[replicas, availableNodes]
-				(locate self)$stdout.putstring["Ordinary update[primary]. Replicas: "
-					|| replicas.upperbound.asString || ", availableNodes: "
-					|| availableNodes.upperbound.asString ||"\n"]
+				%(locate self)$stdout.putstring["Ordinary update[primary]. Replicas: "
+				%	|| replicas.upperbound.asString || ", availableNodes: "
+				%	|| availableNodes.upperbound.asString ||"\n"]
+				(locate self)$stdout.putstring["*** Initialization done. Starting normal process ***"||"\n"] 
 				init <- true
 				
 				unavailable
@@ -158,13 +159,6 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 				end unavailable
 			end maintainReplicas	
 
-			export operation register
-				lock <- true
-				if lock then 
-
-				end if
-			end register
-
 			export operation initializeDataStructures[reps : Array.of[replicaType], availableN : Array.of[node]]
 				self.initReplicas[reps]
 				self.initAvailableNodes[availableN]
@@ -186,7 +180,7 @@ const OrdinaryConstructor <- class oridnaryConstructor [myClonable : ClonableTyp
 			end	initAvailableNodes	
 
 			export operation print[msg : String]
-
+				myClonable.print[msg]
 			end print
 
 			export operation getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]

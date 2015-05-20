@@ -46,7 +46,7 @@ const nameServerConstructor <- object nameServerConstructor
 			export operation setData[newKey: String, newObject : FilmDataType]
 				keys.addupper[newKey]
 				objects.addupper[newObject]
-				self.print["NameServer setData: " || newKey]
+				%self.print["NameServer setData: " || newKey]
 			end setData
 
 			export operation getData -> [res : Array.of[Any]]
@@ -75,13 +75,14 @@ const nameServerConstructor <- object nameServerConstructor
 			end lookup
 
 			export operation print[msg : String]
-				%(locate self)$stdout.putstring["\n " || msg || ":\n"]  
-				%(locate self)$stdout.putstring["\n\t\tFilm data entrys in name server object " 
-				%|| self.getSerial.asString  || ":\n"]  
-				for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
-					%(locate self)$stdout.putstring["\nKey - "|| keys[i] || ":\n"]
-					%objects[i].print[msg || "\n\n"|| i.asString ||". Key - "|| keys[i] || ":"]
-				end for
+				if keys.upperbound > -1 then
+					(locate self)$stdout.putstring["\n" || msg || "\n"]    
+					for i : Integer <- 0 while i <= keys.upperbound by i <- i + 1 
+						objects[i].print[(i + 1).asString ||". Key - "|| keys[i] || ":"]
+					end for
+				else
+					(locate self)$stdout.putstring["No files to print. MSG: "||msg ||"\n"]  
+				end if	
 			end print
 
 			operation copyData -> [newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]
@@ -104,7 +105,7 @@ const nameServerConstructor <- object nameServerConstructor
 					if newKeys[i] !== nil then
 						keys.addUpper[newKeys[i]]
 						objects.addUpper[newObjects[i]]
-						(locate self)$stdout.putstring["nameServer: getInitData: Keys.upper: "|| keys[i] || "\n"]
+						%(locate self)$stdout.putstring["nameServer: getInitData: Keys.upper: "|| keys[i] || "\n"]
 					else
 						(locate self)$stdout.putstring["nameServer: getInitData: There is no data to copy. " || "\n"]
 					end if
@@ -118,14 +119,14 @@ const nameServerConstructor <- object nameServerConstructor
 					exit when init == true 
 					begin		
 						(locate self).delay[Time.create[5,0]]
-						(locate self)$stdout.putstring["\nNameServer ID: "||self.getSerial.asString || "\n"]
-						(locate self)$stdout.putstring["NameServer LNN: "||(locate self)$LNN.asString || "\n"]
-						(locate self)$stdout.putstring["locate keys: " ||(locate keys)$LNN.asString || "\n"]
-						(locate self)$stdout.putstring["locate objects: " ||(locate objects)$LNN.asString || "\n"]
-						(locate self)$stdout.putstring["locate objects[0]: " ||(locate objects[0])$LNN.asString || "\n\n"]
-						(locate self)$stdout.putstring["Files: " ||keys.upperbound.asString || "\n\n"]
+						
+						%(locate self)$stdout.putstring["NameServer LNN: "||(locate self)$LNN.asString || "\n"]
+						%(locate self)$stdout.putstring["locate keys: " ||(locate keys)$LNN.asString || "\n"]
+						%(locate self)$stdout.putstring["locate objects: " ||(locate objects)$LNN.asString || "\n"]
+						%(locate self)$stdout.putstring["locate objects[0]: " ||(locate objects[0])$LNN.asString || "\n\n"]
+						%(locate self)$stdout.putstring["Files: " ||keys.upperbound.asString || "\n\n"]
 						for j : Integer <- 0 while j <= keys.upperbound by j <- j + 1
-							(locate self)$stdout.putstring["\t "|| j.asString ||". "|| keys[j] || "\n"]
+							%(locate self)$stdout.putstring["\t "|| j.asString ||". "|| keys[j] || "\n"]
 						end for
 					end
 					i <- i + 1
@@ -142,10 +143,10 @@ const nameServerConstructor <- object nameServerConstructor
 
 			initially
 				serialNr <- nameServerConstructor.createSerialNr
-				self.print["Initial files in name server object " || self.getSerial.asString || ":\n"]
+				(locate self)$stdout.putstring["\nNameServer ID: "||self.getSerial.asString || "\n"]
 			end initially
 		end nameServer
-		(locate self)$stdout.putstring["nameServerConstructor: create: initKeys.upper: "||initKeys.upperbound.asString || "\n"]
+		%(locate self)$stdout.putstring["nameServerConstructor: create: initKeys.upper: "||initKeys.upperbound.asString || "\n"]
 		newObject.getInitData[initKeys, initObjects]
 	end create
 
@@ -154,7 +155,7 @@ const nameServerConstructor <- object nameServerConstructor
 	export operation createSerialNr -> [newSerial : Integer]
 		createdServers <- createdServers + 1
 		newSerial <- createdServers
-		(locate self)$stdout.putstring["Create serial. New serial: "|| newSerial.asString ||"\n"]
+		%(locate self)$stdout.putstring["Create serial. New serial: "|| newSerial.asString ||"\n"]
 	end createSerialNr
 
 end nameServerConstructor 

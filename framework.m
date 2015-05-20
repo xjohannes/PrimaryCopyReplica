@@ -8,12 +8,10 @@ const framework <- object framework
 	
 	export operation replicateMe[X : ClonableType, N : Integer] -> [proxy : Array.of[ClonableType]]
 		replicas <- Array.of[replicaType].create[(N -1)]
-		%proxy <- Array.of[ClonableType].create[replicas.upperbound]
-		(locate self)$stdout.putstring["ReplicateMe. replicas upper: "|| replicas.upperbound.asString ||"\n"]
 		loop
 			exit when home.getActiveNodes.upperbound > 0 
 			begin
-				home$stdout.putstring["There has to be at least 2 active nodes available to start the Primary Copy Replica Framework. " 
+				home$stdout.putstring["\nThere has to be at least 2 active nodes available to start the Primary Copy Replica Framework. " 
 					||"Please open more nodes."|| "\n"]
 				(locate self).delay[Time.create[2, 0]]
 			end

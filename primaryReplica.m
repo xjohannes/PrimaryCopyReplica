@@ -44,14 +44,14 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			end cloneMe
 
 			export operation update
-				(locate self)$stdout.putstring["Primary update. \n"]
+				%(locate self)$stdout.putstring["Primary update. \n"]
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
 				end unavailable
 			end update
 
 			export operation update[primary : replicaType]
-				(locate self)$stdout.putstring["Primary update[primary]. \n"]
+				%(locate self)$stdout.putstring["Primary update[primary]. \n"]
 				unavailable
 					(locate self)$stdout.putstring["Primary update. Unavailable" || "\n"]
 				end unavailable
@@ -74,7 +74,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			end setData
 
 			export operation setData[newData : Any, upn : Time]
-				(locate self)$stdout.putstring["Primary setData[2]."]
+				%(locate self)$stdout.putstring["Primary setData[2]."]
 				if upn > timeStamp then 
 					self.setData[newData]
 				end if
@@ -85,7 +85,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			end setData
 
 			export operation getData -> [newData : Any]
-				(locate self)$stdout.putstring["Primary getData." || "\n"]
+				%(locate self)$stdout.putstring["Primary getData." || "\n"]
 				newData <- myClonable.getData
 				
 				unavailable
@@ -94,39 +94,32 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 			end getData
 
 			export operation getData[key : Any] -> [res : Any]
-				(locate self)$stdout.putstring["Primary getData[1]." || "\n"]
+				%(locate self)$stdout.putstring["Primary getData[1]." || "\n"]
 				res <- myClonable.getData[key]
 			end getData
 	
 			export operation ping
-				(locate self)$stdout.putstring["Primary ping."|| "\n"]
+				%(locate self)$stdout.putstring["Primary ping."|| "\n"]
 				
 				unavailable
 					(locate self)$stdout.putstring["Primary ping. Unavailable" || "\n"]
 				end unavailable
 			end ping	
 
-			export operation register
-				lock <- true
-				if lock then 
-
-				end if
-			end register
-
 			operation notify
 			 % spawn new objects?
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update
 				end for
-				(locate self)$stdout.putstring["Primary has notified all replicas. " || "\n"]
+				%(locate self)$stdout.putstring["Primary has notified all replicas. " || "\n"]
 			end notify
 
 			operation notify[primary : replicaType]
 				for i : Integer <- 1 while i <= replicas.upperbound by i <- i + 1
 					replicas[i].update[primary]
 				end for
-				(locate self)$stdout.putstring["Primary has notified all replicas[1]. Replicas: " 
-					||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
+				%(locate self)$stdout.putstring["Primary has notified all replicas[1]. Replicas: " 
+				%	||replicas.upperbound.asString || ". AvailableNodes: " || availableNodes.upperbound.asString||"\n"]
 			end notify
 
 			export operation removeUnavailableReplica
@@ -145,8 +138,8 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 					else
 						var throw : replicaType <- replicas.removeUpper
 					end if
-					(locate self)$stdout.putstring["Primary removeUnavailableReplica. Replicas : "
-						||replicas.upperbound.asString || "\n"]
+				%	(locate self)$stdout.putstring["Primary removeUnavailableReplica. Replicas : "
+				%		||replicas.upperbound.asString || "\n"]
 				end unavailable
 			end removeUnavailableReplica
 
@@ -155,14 +148,14 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 					if availableNodes.upperbound >= 0  then
 						var tmpClone : ClonableType <- myClonable.cloneMe
 						replicas.addUpper[OrdinConstructor.create[tmpClone, (replicas.upperbound +1), N, PrimeConstructor, OrdinConstructor]]
-						(locate self)$stdout.putstring["Primary maintainReplicas. Created a Replica. Replicas : "
-						||replicas.upperbound.asString || "\n"]
+						%(locate self)$stdout.putstring["Primary maintainReplicas. Created a Replica. Replicas : "
+						%||replicas.upperbound.asString || "\n"]
 						fix replicas[replicas.upperbound] at availableNodes[availableNodes.upperbound]
 						fix tmpClone at availableNodes[availableNodes.upperbound]
-						(locate self)$stdout.putstring["Primary maintainReplicas. Moved replica to " 
-						|| availableNodes[availableNodes.upperbound]$LNN.asString || "\n"]
-						(locate self)$stdout.putstring["replica at node: " ||(locate replicas[replicas.upperbound])$LNN.asString 
-						||". Clone at node: "||(locate tmpClone)$LNN.asString|| "\n"]
+						%(locate self)$stdout.putstring["Primary maintainReplicas. Moved replica to " 
+						%|| availableNodes[availableNodes.upperbound]$LNN.asString || "\n"]
+						%(locate self)$stdout.putstring["replica at node: " ||(locate replicas[replicas.upperbound])$LNN.asString 
+						%||". Clone at node: "||(locate tmpClone)$LNN.asString|| "\n"]
 						var throw : node <- availableNodes.removeUpper
 						self.notify[self]
 					else
@@ -182,6 +175,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				if init == false then 
 					self.notify[self]
 					(locate self).setNodeEventHandler[primaryEventHandler.create[self, id, N]]
+					(locate self)$stdout.putstring["*** Initialization done. Starting normal process ***"||"\n"] 
 					init <- true
 				end if			
 			end initializeDataStructures
@@ -191,7 +185,7 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				for i : Integer <- 0 while i <= reps.upperbound by i <- i + 1
 					if reps[i] !== nil then 
 						replicas.addUpper[reps[i]]
-					(locate self)$stdout.putstring["Primary initializing replicas."||"\n"] 
+					%(locate self)$stdout.putstring["Primary initializing replicas."||"\n"] 
 					end if	
 				end for
 			end	initReplicas
@@ -200,12 +194,12 @@ const PrimaryConstructor <- class primaryConstructor[myClonable : ClonableType, 
 				availableNodes <- Array.of[node].create[(availableN.upperbound + 1)]
 				for i : Integer <- 0 while i <= availableN.upperbound by i <- i + 1
 					availableNodes[i] <- availableN[i]
-					(locate self)$stdout.putstring["Primary initializeing availables."||"\n"] 
+					%(locate self)$stdout.putstring["Primary initializing availables."||"\n"] 
 				end for
 			end	initAvailableNodes
 
 			export operation print[msg : String]
-
+				myClonable.print[msg]
 			end print
 
 			export operation getInitData[newKeys : Array.of[String], newObjects : Array.of[FilmDataType]]

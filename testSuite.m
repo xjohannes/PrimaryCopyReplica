@@ -30,7 +30,11 @@ const testSuite <- object testSuite
 		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Godfather 2' (in Primary replica):  " || "\n"]
 		insertData.addUpper[input]
 		insertData.addUpper[FilmDataCreator.create["The Godfather 2", "Al Pacino", "1974"]]
+		(locate self).delay[Time.create[2,0]]
+		serverInterfaces[0].print["Files in primary before inserting: " || input]
 		serverInterfaces[0].setData[insertData]
+		(locate self).delay[Time.create[2,0]]
+		serverInterfaces[0].print["Files in primary after inserting: " || input]
 		insertData <- Array.of[Any].create[0]
 		
 		var i : Integer <- 0
@@ -41,11 +45,15 @@ const testSuite <- object testSuite
 				serverInterfaces <- framework.refreshProxyList
 			end
 		end loop
-				
-		insertData.addUpper["Taxi Driver"]
+		input <- "Taxi Driver"
+		insertData.addUpper[input]
 		(locate self)$stdout.putstring["TestSuit: Asking framework to insert 'Taxi Driver' (in ordinary replica):  " || "\n"]
 		insertData.addUpper[(view FilmDataCreator.create["Taxi Driver", "Robert De Niro", "1976"] as Any)]
+		serverInterfaces[0].print["Files in primary before inserting: " || input]
+		serverInterfaces[1].print["Files in primary before inserting: " || input]
 		serverInterfaces[1].setData[insertData]
+		serverInterfaces[0].print["Files in primary after inserting: " || input]
+		serverInterfaces[1].print["Files in primary after inserting: " || input]
 		
 		(locate self).delay[Time.create[2,0]]
 		
